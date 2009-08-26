@@ -1,0 +1,41 @@
+# Slovenski prevod django-openid-consumer paketa
+# Copyright (C) 2008 Matjaž Črnko
+# This file is distributed under the same license as the django-openid-consumer package.
+# Matjaž Črnko <matjaz.crnko@gmail.com>, 2008.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version:  0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-08-07 13:23+0200\n"
+"PO-Revision-Date: 2008-8-1 21:02+0100\n"
+"Last-Translator: Matjaž Črnko <matjaz.crnko@gmail.com>\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: views.py:91
+msgid "i-names are not supported"
+msgstr "i-name ni podprt"
+
+#: views.py:97
+msgid "The OpenID was invalid"
+msgstr "OpenID je neveljaven"
+
+#: views.py:128
+msgid "The request was cancelled"
+msgstr "Povezava je bila prekinjena"
+
+#: views.py:132
+msgid "Setup needed"
+msgstr "Postavitev potrebna"
+
+#~ msgid "OpenID failed"
+#~ msgstr "Napaka pri prijavi z OpenID"
+
+#~ msgid "Sign in with your OpenID"
+#~ msgstr "Prijavite se z OpenID"
+
+#~ msgid "Sign in"
+#~ msgstr "Prijava"

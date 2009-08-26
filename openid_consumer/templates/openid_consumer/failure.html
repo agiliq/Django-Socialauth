@@ -1,0 +1,34 @@
+{% block title %}
+
+{{ block.super }} - {% trans "OpenID failed" %}
+
+{% endblock %}
+
+{% block main_content %}
+
+<h1>{% trans "OpenID failed" %}:</h1>
+
+<p>{{ message|escape }}</p>
+
+<br /><br /><br /><br />
+
+
+{% endblock %}
+
+
+
+{#
+{% load i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+<title>{% trans "OpenID failed" %}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+<h1>{% trans "OpenID failed" %}:</h1>
+
+<p>{{ message|escape }}</p>
+</body>
+</html>
+#}
