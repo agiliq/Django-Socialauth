@@ -24,10 +24,10 @@ Libs you need to install
 
 The API Keys are available from
 
-http://www.facebook.com/developers/createapp.php(You need two, one for auth, one for import)
+http://www.facebook.com/developers/createapp.php 
 https://developer.yahoo.com/dashboard/createKey.html
 https://www.google.com/accounts/ManageDomains
-http://twitter.com/oauth_clients (You need two, one for auth, one for import)
+http://twitter.com/oauth_clients 
 
 How it works.
 -------------------
@@ -87,5 +87,5 @@ Implementation
 0. Install required libraries.
 1. Get tokens and populate in localsettings.py
 2. Set the token callback urls correctly at Twitter and Facebook.
-3. Set the 
+4. Set the authentication_backends to the providers you are using.
 
