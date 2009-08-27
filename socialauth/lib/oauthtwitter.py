@@ -64,8 +64,11 @@ class OAuthApi(Api):
         '''
         # Build the extra parameters dict
         extra_params = {}
-        if self._default_params:
-          extra_params.update(self._default_params)
+        try:
+            if self._default_params:
+              extra_params.update(self._default_params)
+        except AttributeError:
+            pass
         if parameters:
           extra_params.update(parameters)
     
