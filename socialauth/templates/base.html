@@ -4,7 +4,7 @@
 {% endblock %}
 
 <head>
-    <title><!-- Insert your title here --></title>
+    <title>{% if user.is_authenticated %}Hello {{ user }}{% else %}Please login{% endif %}</title>
     {% block extra_head %}
     {% endblock %}
 </head>
