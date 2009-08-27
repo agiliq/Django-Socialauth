@@ -132,13 +132,11 @@ def openid_done(request, provider=None):
            email = user.email          
         else:    
             if nickname is None :
-            #for time being dummy user name for openid user
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
-            #for time being dummy email for openid user
-                email =  '%s@%s.%s.com'%(nickname, provider)
+                from django.conf import settings
+                email =  '%s@%s.%s.com'%(nickname, settings.SITE_NAME, provider)
             user = User.objects.create_user(nickname,email)
-            #until he get proper username
             user.save()
     
             #create openid association
