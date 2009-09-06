@@ -13,7 +13,11 @@ elif openid.__version__ < '2.1.0':
     from openid.sreg import SRegRequest
 else: 
     from openid.extensions.sreg import SRegRequest
-    from openid.extensions.pape import Request as PapeRequest
+    try:
+        from openid.extensions.pape import Request as PapeRequest
+    except ImportError:
+        from openid.extensions import pape as openid_pape
+        PapeRequest =  openid_pape.Request
     from openid.extensions.ax import FetchRequest as AXFetchRequest
     from openid.extensions.ax import AttrInfo
 
