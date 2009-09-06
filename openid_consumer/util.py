@@ -1,10 +1,14 @@
 import openid
 if openid.__version__ < '2.1.0':
     from openid.sreg import SRegResponse
-else: 
+else:
     from openid.extensions.sreg import SRegResponse
-    from openid.extensions.pape import Response as PapeResponse
     from openid.extensions.ax import FetchResponse as AXFetchResponse
+    try:
+        from openid.extensions.pape import Response as PapeResponse
+    except ImportError:
+        from openid.extensions import pape as openid_pape
+        PapeResponse = openid_pape.Response
 
 from openid.store import nonce as oid_nonce
 from openid.store.interface import OpenIDStore
