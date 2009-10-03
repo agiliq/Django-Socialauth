@@ -38,11 +38,8 @@ def login_page(request):
     payload = {'fb_api_key':settings.FACEBOOK_API_KEY,}
     return render_to_response('socialauth/login_page.html', payload, RequestContext(request))
 
-def twitter_login(request, for_import=False):
-    if for_import:
-        twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_IMPORT_CONSUMER_KEY, settings.TWITTER_IMPORT_CONSUMER_SECRET)
-    else:
-        twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+def twitter_login(request):
+    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
     request_token = twitter.fetch_request_token()  
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)  
@@ -52,7 +49,7 @@ def twitter_login_done(request):
     request_token = request.session.get('request_token', None)
     
     # If there is no request_token for session,
-    #    means we didn't redirect user to twitter
+    # Means we didn't redirect user to twitter
     if not request_token:
             # Redirect the user to the login page,
             # So the user can click on the sign-in with twitter button
@@ -127,9 +124,9 @@ def openid_done(request, provider=None):
         openid_key = escape(str(request.openid))
         userassociation =  UserAssociation.objects.filter(openid_key = openid_key)   
         if userassociation:
-           user = userassociation[0].user
-           nickname = user.username    
-           email = user.email          
+            user = userassociation[0].user
+            nickname = user.username    
+            email = user.email          
         else:    
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
@@ -154,12 +151,9 @@ def openid_done(request, provider=None):
         if user:
             login(request, user)
         if 'openid_next' in request.session :
-    
-           openid_next = request.session.get('openid_next')
-    
-           if len(openid_next.strip()) >  0 :
-    
-               return HttpResponseRedirect(openid_next)    
+            openid_next = request.session.get('openid_next')
+            if len(openid_next.strip()) >  0 :
+                return HttpResponseRedirect(openid_next)    
         redirect_url = reverse('socialauth_signin_complete')
         return HttpResponseRedirect(redirect_url)
     
