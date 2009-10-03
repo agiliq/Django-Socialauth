@@ -9,6 +9,9 @@ from socialauth.lib.facebook import get_user_info, get_facebook_signature
 from datetime import datetime
 import random
 
+TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
+TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
+
 class OpenIdBackend:
     def authenticate(self, openid_key):
         try:
@@ -23,14 +26,6 @@ class OpenIdBackend:
             return user
         except User.DoesNotExist:
             return None
-
-
-
-
-TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
-TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
-
-
 
 class TwitterBackend:
     """TwitterBackend for authentication
@@ -48,16 +43,28 @@ class TwitterBackend:
         screen_name = userinfo.screen_name
         
         try:
-            user = User.objects.get(username = 'twitter_%s'%screen_name )
+            user_profile = TwitterUserProfile.objects.get(screen_name = screen_name)
+            user = user_profile.user
             return user
-        except User.DoesNotExist:
-            user = User(username = 'twitter_%s'%screen_name)
+        except TwitterUserProfile.DoesNotExist:
+            #Create new user
+            same_name_count = User.objects.filter(username__startswith = screen_name).count()
+            if same_name_count:
+                username = '%s%s' % (screen_name, same_name_count + 1)
+            else:
+                username = screen_name
+            user = User(username =  username)
             temp_password = User.objects.make_random_password(length=12)
             user.set_password(temp_password)
-            user.first_name = userinfo.name
+            name_data = userinfo.name.split()
+            try:
+                first_name, last_name = name_data[0], ' '.join(name_data[1:])
+            except:
+                first_name, last_name =  screen_name, ''
+            user.first_name, user.last_name = first_name, last_name
             user.email = '%s@twitteruser.%s.com'%(userinfo.screen_name, settings.SITE_NAME)
             user.save()
-            userprofile = TwitterUserProfile(user = user)
+            userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             userprofile.access_token = access_token.key
             userprofile.url = userinfo.url
             userprofile.location = userinfo.location
@@ -73,6 +80,7 @@ class TwitterBackend:
         except:
             return None
         
+
 class FacebookBackend:
     
     def authenticate(self, username, cookies):

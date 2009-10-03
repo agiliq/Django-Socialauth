@@ -20,22 +20,14 @@ class UserAssociation(models.Model):
     openid_key = models.CharField(max_length=200,unique=True)
     #Values which we get from openid.sreg
     email = models.EmailField()
-    nickname = models.CharField(max_length = 100)
-
-class UserAssociation(models.Model):
-    """A class associating an User to a Openid"""
-    user = models.ForeignKey(User)
-    openid_key = models.CharField(max_length=200,unique=True)
-    #Values which we get from openid.sreg
-    email = models.EmailField()
-    nickname = models.CharField(max_length = 100)
-    
+    nickname = models.CharField(max_length = 100)    
 
 class TwitterUserProfile(models.Model):
     """
     For users who login via Twitter.
     """
     user = models.ForeignKey(User)
+    screen_name = models.CharField(max_length = 200, unique = True)
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
