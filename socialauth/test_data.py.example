@@ -1,0 +1,5 @@
+test_base_url = "http://nothing.uswaretech.net:8000/"
+twitter_username = "socialauthtest2"
+twitter_password = ""
+myopenid_url = "http://socialauthtest2.myopenid.com/"
+myopenid_password = ""

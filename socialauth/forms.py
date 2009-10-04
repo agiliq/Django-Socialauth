@@ -26,7 +26,7 @@ class EditProfileForm(forms.Form):
         try:
             authmeta = self.user.authmeta
             if not ALLOW_MULTIPLE_USERNAME_EDITS and authmeta.is_profile_modified:
-                raise forms.ValidationError('You have already edited your password. Only a single edit to the password is allowed.')
+                raise forms.ValidationError('You have already edited your username. Only a single edit to the password is allowed.')
         except AuthMeta.DoesNotExist:
             pass
         
