@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from socialauth.lib import oauthtwitter
-from socialauth.models import UserAssociation, TwitterUserProfile, AuthMeta
+from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, AuthMeta
 from socialauth.lib.facebook import get_user_info, get_facebook_signature
 
 from datetime import datetime
@@ -13,12 +13,39 @@ TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
 
 class OpenIdBackend:
-    def authenticate(self, openid_key):
+    def authenticate(self, openid_key, request, provider):
         try:
             assoc = UserAssociation.objects.get(openid_key = openid_key)
             return assoc.user
         except UserAssociation.DoesNotExist:
-            return None
+            #fetch if openid provider provides any simple registration fields
+            nickname = None
+            email = None
+            if request.openid and request.openid.sreg:
+                email = request.openid.sreg('email')
+                nickname = request.openid.sreg('nickname')
+            if nickname is None :
+                nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
+            if email is None :
+                from django.conf import settings
+                email =  '%s@%s.%s.com'%(nickname, settings.SITE_NAME, provider)
+            name_count = User.objects.filter(username__startswith = nickname).count()
+            if name_count:
+                username = '%s%s'%(nickname, name_count + 1)
+                user = User.objects.create_user(username,email)
+            else:
+                user = User.objects.create_user(nickname,email)
+            user.save()
+    
+            #create openid association
+            assoc = UserAssociation()
+            assoc.openid_key = openid_key
+            assoc.user = user
+            assoc.save()
+            
+            #Create AuthMeta
+            auth_meta = AuthMeta(user = user, provider = provider)
+            auth_meta.save()
     
     def get_user(self, user_id):
         try:
@@ -95,14 +122,22 @@ class FacebookBackend:
                 if not username == username_:
                     return None
                 try:
-                    user = User.objects.get(username = username)
-                    return user
-                except User.DoesNotExist:
+                    profile = FacebookUserProfile.objects.get(facebook_uid = user_info_response[0]['uid'])
+                    return profile.user
+                except FacebookUserProfile.DoesNotExist:
+                    fb_data = user_info_response[0]
+                    name_count = User.objects.filter(username__startswith = username).count()
+                    if name_count:
+                        username = '%s%s' % (username, name_count + 1)
                     user_email = '%s@facebookuser.%s.com'%(user_info_response[0]['first_name'], settings.SITE_NAME)
-                    user_pass = ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(8)])
-                    user = User.objects.create(username = username, email=user_email, password=user_pass)
-                    user.first_name = user_info_response[0]['first_name']
-                    user.last_name = user_info_response[0]['last_name']
+                    #user_pass = ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(8)])
+                    user = User.objects.create(username = username, email=user_email)
+                    user.first_name = fb_data['first_name']
+                    user.last_name = fb_data['last_name']
+                    user.save()
+                    location = str(fb_data['current_location'])
+                    fb_profile = FacebookUserProfile(facebook_uid = fb_data['uid'], user = user, profile_image_url = fb_data['pic_small'], location=location)
+                    fb_profile.save()
                     auth_meta = AuthMeta(user=user, provider='Facebook').save()
                     return user
             else:

@@ -13,11 +13,11 @@ class AuthMeta(models.Model):
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
 
-
-class UserAssociation(models.Model):
+class OpenidProfile(models.Model):
     """A class associating an User to a Openid"""
-    user = models.ForeignKey(User)
     openid_key = models.CharField(max_length=200,unique=True)
+    
+    user = models.ForeignKey(User)
     #Values which we get from openid.sreg
     email = models.EmailField()
     nickname = models.CharField(max_length = 100)    
@@ -26,8 +26,9 @@ class TwitterUserProfile(models.Model):
     """
     For users who login via Twitter.
     """
-    user = models.ForeignKey(User)
     screen_name = models.CharField(max_length = 200, unique = True)
+    
+    user = models.ForeignKey(User)
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
@@ -36,6 +37,21 @@ class TwitterUserProfile(models.Model):
 
     def __str__(self):
             return "%s's profile" % self.user
+        
+
+class FacebookUserProfile(models.Model):
+    """
+    For users who login via Facebook.
+    """
+    facebook_uid = models.CharField(max_length = 20, unique = True)
+    
+    user = models.ForeignKey(User)
+    profile_image_url = models.URLField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+    about_me = models.CharField(max_length=160, blank=True, null=True)
+    
+    
 
 
 
