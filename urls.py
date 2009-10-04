@@ -6,7 +6,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^accounts/', include('socialauth.urls')),
-    (r'^admin/$', admin.site.urls), 
+    (r'^admin/', admin.site.urls), 
     (r'^$', leave_comment), 
 
 )

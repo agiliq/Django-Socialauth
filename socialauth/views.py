@@ -12,7 +12,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-from socialauth.models import UserAssociation, AuthMeta
+from socialauth.models import OpenidProfile, AuthMeta
 
 """
 from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
@@ -110,44 +110,11 @@ def openid_done(request, provider=None):
     """
     if not provider:
         provider = request.session.get('openid_provider', '')
-    if  request.openid :
-        email = None
-        nickname = None
-        password = None
-        #fetch if openid provider provides any simple registration fields
-        if request.openid.sreg :
-            if request.openid.sreg.has_key('email') :
-                email = request.openid.sreg['email']
-            if request.openid.sreg.has_key('nickname') :        
-                nickname = request.openid.sreg['nickname']
+    if  request.openid:
         #check for already existing associations
         openid_key = escape(str(request.openid))
-        userassociation =  UserAssociation.objects.filter(openid_key = openid_key)   
-        if userassociation:
-            user = userassociation[0].user
-            nickname = user.username    
-            email = user.email          
-        else:    
-            if nickname is None :
-                nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
-            if email is None :
-                from django.conf import settings
-                email =  '%s@%s.%s.com'%(nickname, settings.SITE_NAME, provider)
-            user = User.objects.create_user(nickname,email)
-            user.save()
-    
-            #create openid association
-            assoc = UserAssociation()
-            assoc.openid_key = openid_key
-            assoc.user = user
-            assoc.save()
-            
-            #Create AuthMeta
-            auth_meta = AuthMeta(user = user, provider = provider)
-            auth_meta.save()
-            
         #authenticate and login
-        user = authenticate(openid_key=openid_key)
+        user = authenticate(openid_key=openid_key, request=request, provider = provider)
         if user:
             login(request, user)
         if 'openid_next' in request.session :
@@ -171,16 +138,16 @@ def facebook_login_done(request):
             user_info_response  = get_user_info(API_KEY, API_SECRET, request.COOKIES)
             username = 'facebook_%s' % user_info_response[0]['first_name']
             session_key = request.COOKIES[API_KEY + '_session_key'],
-            user = authenticate(username=username, cookies=request.COOKIES)
             # if user is authenticated then login user
+            user = authenticate(username=username, cookies=request.COOKIES)
             if user:
                 login(request, user)
+                return HttpResponseRedirect(reverse('socialauth_signin_complete'))
             else:
                 #Delete cookies and redirect to main Login page.
                 del request.COOKIES[API_KEY + '_session_key']
                 del request.COOKIES[API_KEY + '_user']
                 return HttpResponseRedirect(reverse('socialauth_login_page'))
-            return HttpResponseRedirect(reverse('socialauth_signin_complete'))
             
     
 def signin_complete(request):

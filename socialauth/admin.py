@@ -1,8 +1,9 @@
-from socialauth.models import AuthMeta, UserAssociation, TwitterUserProfile
+from socialauth.models import AuthMeta, OpenidProfile, TwitterUserProfile, FacebookUserProfile
 
 from django.contrib import admin
 
 admin.site.register(AuthMeta)
-admin.site.register(UserAssociation)
+admin.site.register(OpenidProfile)
 admin.site.register(TwitterUserProfile)
+admin.site.register(FacebookUserProfile)
 
