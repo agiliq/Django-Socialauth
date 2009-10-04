@@ -27,25 +27,25 @@ function facebook_onlogin(){
 
 <div id="login">
     <div id="twitter">
-        <a href="{% url socialauth_twitter_login %}">Login via twitter</a>
+        <a href="{% url socialauth_twitter_login %}" id="twitter_login_link">Login via twitter</a>
     </div>
     
     <div id="yahoo">
-        <a href="{% url socialauth_yahoo_login %}">Login via Yahoo</a>
+        <a href="{% url socialauth_yahoo_login %}" id="yahoo_login_link">Login via Yahoo</a>
     </div>
     
     <div id="openid">
-        <a href="{% url socialauth_openid_login %}">Login via Openid</a>
+        <a href="{% url socialauth_openid_login %}" id="openid_login_link">Login via Openid</a>
     </div>
     
     <div id="google">
-        <a href="{% url socialauth_google_login %}">Login via Google</a>
+        <a href="{% url socialauth_google_login %}" id="google_login_link">Login via Google</a>
     </div>
     <div id="facebook">
         <fb:login-button onlogin="facebook_onlogin();"></fb:login-button>
     </div>
     
-    <script type="text/javascript">  FB.init("{{ fb_api_key }}", "../xd_receiver.htm"); </script>
+    <script type="text/javascript">  FB.init("{{ fb_api_key }}", "{% url socialauth_xd_receiver %}"); </script>
     
     <br />
     <br />
