@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.contrib.auth.models import User
 
 from socialauth.lib import oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, AuthMeta
@@ -11,6 +10,9 @@ import random
 
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
+FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
+FACEBOOK_API_SECRET = getattr(settings, 'FACEBOOK_API_SECRET', '')
+FACEBOOK_REST_SERVER = getattr(settings, 'FACEBOOK_REST_SERVER', 'http://api.facebook.com/restserver.php')
 
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider):
@@ -27,8 +29,7 @@ class OpenIdBackend:
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
-                from django.conf import settings
-                email =  '%s@%s.%s.com'%(nickname, settings.SITE_NAME, provider)
+                email =  '%s@%s.%s.com'%(nickname, provider, settings.SITE_NAME)
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
@@ -110,27 +111,24 @@ class TwitterBackend:
 
 class FacebookBackend:
     
-    def authenticate(self, username, cookies):
-        API_KEY = settings.FACEBOOK_API_KEY
-        API_SECRET = settings.FACEBOOK_API_SECRET   
-        REST_SERVER = 'http://api.facebook.com/restserver.php'
+    def authenticate(self, cookies):
+        API_KEY = FACEBOOK_API_KEY
+        API_SECRET = FACEBOOK_API_SECRET   
+        REST_SERVER = FACEBOOK_REST_SERVER
         if API_KEY in cookies:
             signature_hash = get_facebook_signature(API_KEY, API_SECRET, cookies, True)                
             if(signature_hash == cookies[API_KEY]) and (datetime.fromtimestamp(float(cookies[API_KEY+'_expires'])) > datetime.now()):
                 user_info_response  = get_user_info(API_KEY, API_SECRET, cookies)
-                username_ = 'facebook_%s' % user_info_response[0]['first_name']
-                if not username == username_:
-                    return None
+                username = user_info_response[0]['first_name']
                 try:
                     profile = FacebookUserProfile.objects.get(facebook_uid = user_info_response[0]['uid'])
                     return profile.user
                 except FacebookUserProfile.DoesNotExist:
                     fb_data = user_info_response[0]
-                    name_count = User.objects.filter(username__startswith = username).count()
+                    name_count = User.objects.filter(username__istartswith = username).count()
                     if name_count:
                         username = '%s%s' % (username, name_count + 1)
                     user_email = '%s@facebookuser.%s.com'%(user_info_response[0]['first_name'], settings.SITE_NAME)
-                    #user_pass = ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(8)])
                     user = User.objects.create(username = username, email=user_email)
                     user.first_name = fb_data['first_name']
                     user.last_name = fb_data['last_name']

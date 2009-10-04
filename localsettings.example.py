@@ -1,9 +1,4 @@
 # Put your local settings here. This will override corresponding settings in settings.py.
-
-# PLEASE DO NOT CHECK IN THIS FILE.
-
-# Put your local settings here. This will override corresponding settings in settings.py.
-
 # PLEASE DO NOT CHECK IN THIS FILE.
 
 ADMINS = (

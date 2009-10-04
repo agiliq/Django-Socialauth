@@ -13,6 +13,7 @@ except ImportError:
     from django.utils import simplejson as json
 
 from socialauth.models import OpenidProfile, AuthMeta
+from socialauth.forms import EditProfileForm
 
 """
 from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
@@ -112,7 +113,7 @@ def openid_done(request, provider=None):
         provider = request.session.get('openid_provider', '')
     if  request.openid:
         #check for already existing associations
-        openid_key = escape(str(request.openid))
+        openid_key = str(request.openid)
         #authenticate and login
         user = authenticate(openid_key=openid_key, request=request, provider = provider)
         if user:
@@ -135,12 +136,9 @@ def facebook_login_done(request):
         # AND If session hasn't expired
         if(signature_hash == request.COOKIES[API_KEY]) and (datetime.fromtimestamp(float(request.COOKIES[API_KEY+'_expires'])) > datetime.now()):
             #Log the user in now.
-            user_info_response  = get_user_info(API_KEY, API_SECRET, request.COOKIES)
-            username = 'facebook_%s' % user_info_response[0]['first_name']
-            session_key = request.COOKIES[API_KEY + '_session_key'],
-            # if user is authenticated then login user
-            user = authenticate(username=username, cookies=request.COOKIES)
+            user = authenticate(cookies=request.COOKIES)
             if user:
+                # if user is authenticated then login user
                 login(request, user)
                 return HttpResponseRedirect(reverse('socialauth_signin_complete'))
             else:
@@ -148,6 +146,7 @@ def facebook_login_done(request):
                 del request.COOKIES[API_KEY + '_session_key']
                 del request.COOKIES[API_KEY + '_user']
                 return HttpResponseRedirect(reverse('socialauth_login_page'))
+    return HttpResponseRedirect(reverse('socialauth_login_page'))
             
     
 def signin_complete(request):
@@ -156,18 +155,12 @@ def signin_complete(request):
 
 @login_required
 def editprofile(request):
-    try:
-        authmeta = request.user.authmeta
-        if authmeta.is_profile_modified:
-            #allow profile modification only once.
-            return HttpResponseForbidden('You have already modified your profile')
-    except AuthMeta.DoesNotExist:
-        pass
     if request.method == 'POST':
         edit_form = EditProfileForm(user=request.user, data=request.POST)
         if edit_form.is_valid():
             user = edit_form.save()
-            return HttpResponseRedirect('/')
+            request.user.message_set.create('Your profile has been updated.')
+            return HttpResponseRedirect('.')
     if request.method == 'GET':
         edit_form = EditProfileForm(user = request.user)
     payload = {'edit_form':edit_form}
