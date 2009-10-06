@@ -20,7 +20,15 @@ class OpenidProfile(models.Model):
     user = models.ForeignKey(User)
     #Values which we get from openid.sreg
     email = models.EmailField()
-    nickname = models.CharField(max_length = 100)    
+    nickname = models.CharField(max_length = 100)
+    
+    
+    def __unicode__(self):
+        return unicode(self.openid_key)
+    
+    def __repr__(self):
+        return unicode(self.openid_key)
+    
 
 class TwitterUserProfile(models.Model):
     """
