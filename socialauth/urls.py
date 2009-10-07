@@ -4,14 +4,11 @@ from django.views.generic.simple import direct_to_template
 
 from django.conf import settings
 
-post_login_url = r'^%s$'%settings.LOGIN_REDIRECT_URL[1:]
-
 #Login Views
 urlpatterns = patterns('socialauth.views',
     url(r'^facebook_login/xd_receiver.htm$', direct_to_template, {'template':'socialauth/xd_receiver.htm'}, name='socialauth_xd_receiver'),
     url(r'^facebook_login/$', 'facebook_login_done', name='socialauth_facebook_login_done'),
     url(r'^login/$', 'login_page', name='socialauth_login_page'),
-    url(post_login_url, 'signin_complete', name='socialauth_signin_complete'),
     url(r'^twitter_login/$', 'twitter_login', name='socialauth_twitter_login'),
     url(r'^twitter_login/done/$', 'twitter_login_done', name='socialauth_twitter_login_done'),
     url(r'^yahoo_login/$', 'yahoo_login', name='socialauth_yahoo_login'),

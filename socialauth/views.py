@@ -82,7 +82,7 @@ def twitter_login_done(request):
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, use is now logged in
-    return HttpResponseRedirect(reverse("socialauth_signin_complete"))
+    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login(request):
     request.session['openid_provider'] = 'Openid'
@@ -122,8 +122,7 @@ def openid_done(request, provider=None):
             openid_next = request.session.get('openid_next')
             if len(openid_next.strip()) >  0 :
                 return HttpResponseRedirect(openid_next)    
-        redirect_url = reverse('socialauth_signin_complete')
-        return HttpResponseRedirect(redirect_url)
+        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
     
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
@@ -140,7 +139,7 @@ def facebook_login_done(request):
             if user:
                 # if user is authenticated then login user
                 login(request, user)
-                return HttpResponseRedirect(reverse('socialauth_signin_complete'))
+                return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
             else:
                 #Delete cookies and redirect to main Login page.
                 del request.COOKIES[API_KEY + '_session_key']
