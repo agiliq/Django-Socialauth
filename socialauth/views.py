@@ -123,7 +123,9 @@ def openid_done(request, provider=None):
             if len(openid_next.strip()) >  0 :
                 return HttpResponseRedirect(openid_next)    
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
-    
+    else:
+        return HttpResponseRedirect(settings.LOGIN_URL)
+
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
     API_SECRET = settings.FACEBOOK_API_SECRET   
