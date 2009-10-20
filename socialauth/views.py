@@ -125,7 +125,7 @@ def openid_done(request, provider=None):
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-
+    
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
     API_SECRET = settings.FACEBOOK_API_SECRET   
@@ -168,7 +168,17 @@ def editprofile(request):
     return render_to_response('socialauth/editprofile.html', payload, RequestContext(request))
 
 def social_logout(request):
-    #Todo
-    #Just Logout for now. Need to delete, FB cookies, session etc.
-    return logout(request)
-
+    # Todo
+    # still need to handle FB cookies, session etc.
+    
+    # let the openid_consumer app handle openid-related cleanup
+    from openid_consumer.views import signout as oid_signout
+    oid_signout(request)
+    
+    # normal logout
+    logout_response = logout(request)
+    
+    if settings.LOGOUT_REDIRECT_URL:
+        return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
+    else:
+        return logout_response
