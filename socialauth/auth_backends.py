@@ -16,7 +16,6 @@ FACEBOOK_REST_SERVER = getattr(settings, 'FACEBOOK_REST_SERVER', 'http://api.fac
 
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider):
-        print 'trying to authenticate via OpenID with openid_key %s' % openid_key
         try:
             assoc = UserAssociation.objects.get(openid_key = openid_key)
             return assoc.user
@@ -26,7 +25,6 @@ class OpenIdBackend:
             email = None
             # print 'request.openid: %s' % request.openid
             # print 'request.openid.sreg: %s' % request.openid.sreg
-            # import pdb; pdb.set_trace()
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
