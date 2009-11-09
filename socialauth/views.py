@@ -82,7 +82,7 @@ def twitter_login_done(request):
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, use is now logged in
-    return HttpResponseRedirect(reverse("socialauth_signin_complete"))
+    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login(request):
     request.session['openid_provider'] = 'Openid'
@@ -124,6 +124,8 @@ def openid_done(request, provider=None):
                 return HttpResponseRedirect(openid_next)    
         redirect_url = reverse('socialauth_signin_complete')
         return HttpResponseRedirect(redirect_url)
+    else:
+        return HttpResponseRedirect(settings.LOGIN_URL)
     
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
@@ -167,7 +169,17 @@ def editprofile(request):
     return render_to_response('socialauth/editprofile.html', payload, RequestContext(request))
 
 def social_logout(request):
-    #Todo
-    #Just Logout for now. Need to delete, FB cookies, session etc.
-    return logout(request)
-
+    # Todo
+    # still need to handle FB cookies, session etc.
+    
+    # let the openid_consumer app handle openid-related cleanup
+    from openid_consumer.views import signout as oid_signout
+    oid_signout(request)
+    
+    # normal logout
+    logout_response = logout(request)
+    
+    if settings.LOGOUT_REDIRECT_URL:
+        return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
+    else:
+        return logout_response

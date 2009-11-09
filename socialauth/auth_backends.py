@@ -23,14 +23,17 @@ class OpenIdBackend:
             #fetch if openid provider provides any simple registration fields
             nickname = None
             email = None
+            # print 'request.openid: %s' % request.openid
+            # print 'request.openid.sreg: %s' % request.openid.sreg
             if request.openid and request.openid.sreg:
-                email = request.openid.sreg('email')
-                nickname = request.openid.sreg('nickname')
+                email = request.openid.sreg.get('email')
+                nickname = request.openid.sreg.get('nickname')
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
                 email =  '%s@%s.%s.com'%(nickname, provider, settings.SITE_NAME)
             name_count = User.objects.filter(username__startswith = nickname).count()
+            # print 'nickname: %s, email: %s, name_count: %s' % (nickname, email, name_count)
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
                 user = User.objects.create_user(username,email)
@@ -42,11 +45,16 @@ class OpenIdBackend:
             assoc = UserAssociation()
             assoc.openid_key = openid_key
             assoc.user = user
+            if email:
+                assoc.email = email
+            if nickname:
+                assoc.nickname = nickname
             assoc.save()
             
             #Create AuthMeta
             auth_meta = AuthMeta(user = user, provider = provider)
             auth_meta.save()
+            return user
     
     def get_user(self, user_id):
         try:
