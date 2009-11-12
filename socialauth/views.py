@@ -85,8 +85,13 @@ def twitter_login_done(request):
     return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login(request):
-    request.session['openid_provider'] = 'Openid'
-    return begin(request)
+    if 'openid_identifier' in request.GET:
+        user_url = request.GET.get('openid_identifier')
+        request.session['openid_provider'] = user_url
+        return begin(request, user_url = user_url)
+    else:
+        request.session['openid_provider'] = 'Openid'
+        return begin(request)
 
 def gmail_login(request):
     request.session['openid_provider'] = 'Google'
@@ -97,6 +102,8 @@ def gmail_login_complete(request):
 
 
 def yahoo_login(request):
+    import ipdb
+    ipdb.set_trace()
     request.session['openid_provider'] = 'Yahoo'
     return begin(request, user_url='http://yahoo.com/')
 
@@ -151,7 +158,9 @@ def facebook_login_done(request):
                 del request.COOKIES[API_KEY + '_user']
                 return HttpResponseRedirect(reverse('socialauth_login_page'))
     return HttpResponseRedirect(reverse('socialauth_login_page'))
-            
+
+def openid_login_page(request):
+    return render_to_response('openid/index.html', {}, RequestContext(request))
     
 def signin_complete(request):
     payload = {}

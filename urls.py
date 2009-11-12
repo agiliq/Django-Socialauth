@@ -10,3 +10,12 @@ urlpatterns = patterns('',
     (r'^$', leave_comment), 
 
 )
+from django.conf import settings
+
+if settings.DEBUG:
+    
+    urlpatterns += patterns('',
+        # This is for the CSS and static files:
+        (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+    )
+    

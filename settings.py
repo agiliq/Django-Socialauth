@@ -86,4 +86,8 @@ INSTALLED_APPS = (
 
 from localsettings import *
 
+import os
+MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'media'))
+MEDIA_URL = '/site_media/'
+
 SITE_NAME = 'foobar'
