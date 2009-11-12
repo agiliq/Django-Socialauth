@@ -41,7 +41,7 @@ def get_url_host(request):
 
 def get_full_url(request):
     return get_url_host(request) + request.get_full_path()
-
+		
 next_url_re = re.compile('^/[-\w/]+$')
 
 def is_valid_next_url(next):
@@ -53,7 +53,6 @@ def is_valid_next_url(next):
 
 def begin(request, redirect_to=None, on_failure=None, user_url=None, template_name='openid_consumer/signin.html'):
     on_failure = on_failure or default_on_failure
-    
     trust_root = getattr(
         settings, 'OPENID_TRUST_ROOT', get_url_host(request) + '/'
     )
@@ -155,7 +154,6 @@ def complete(request, on_success=None, on_failure=None, failure_template='openid
 
     url = get_url_host(request) + request.path
     openid_response = consumer.complete(query_dict, url)
-    
     if openid_response.status == SUCCESS:
         return on_success(request, openid_response.identity_url, openid_response)
     elif openid_response.status == CANCEL:

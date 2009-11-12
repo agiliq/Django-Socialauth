@@ -98,7 +98,7 @@ def gmail_login_complete(request):
 
 def yahoo_login(request):
     request.session['openid_provider'] = 'Yahoo'
-    return begin(request, user_url='http://yahoo.com')
+    return begin(request, user_url='http://yahoo.com/')
 
 def openid_done(request, provider=None):
     """
@@ -122,7 +122,7 @@ def openid_done(request, provider=None):
             openid_next = request.session.get('openid_next')
             if len(openid_next.strip()) >  0 :
                 return HttpResponseRedirect(openid_next)    
-        redirect_url = reverse('socialauth_signin_complete')
+        redirect_url = reverse('socialauth_editprofile')
         return HttpResponseRedirect(redirect_url)
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
@@ -179,7 +179,7 @@ def social_logout(request):
     # normal logout
     logout_response = logout(request)
     
-    if settings.LOGOUT_REDIRECT_URL:
+    if getattr(settings, 'LOGOUT_REDIRECT_URL', None):
         return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
     else:
         return logout_response

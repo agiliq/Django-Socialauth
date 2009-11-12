@@ -23,8 +23,6 @@ class OpenIdBackend:
             #fetch if openid provider provides any simple registration fields
             nickname = None
             email = None
-            # print 'request.openid: %s' % request.openid
-            # print 'request.openid.sreg: %s' % request.openid.sreg
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
@@ -33,7 +31,6 @@ class OpenIdBackend:
             if email is None :
                 email =  '%s@%s.%s.com'%(nickname, provider, settings.SITE_NAME)
             name_count = User.objects.filter(username__startswith = nickname).count()
-            # print 'nickname: %s, email: %s, name_count: %s' % (nickname, email, name_count)
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
                 user = User.objects.create_user(username,email)
