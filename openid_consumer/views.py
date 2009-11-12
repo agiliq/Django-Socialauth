@@ -126,8 +126,8 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
                 p.max_auth_age = pape[parg]
         auth_request.addExtension(p)
 
-    ax = getattr(settings, 'OPENID_AX', False)
-
+    ax = getattr(settings, 'OPENID_AX', [])
+	
     if ax:
         axr = AXFetchRequest()
         for i in ax:

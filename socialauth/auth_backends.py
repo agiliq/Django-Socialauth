@@ -26,10 +26,16 @@ class OpenIdBackend:
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
+            elif request.openid and request.openid.ax:
+                email = request.openid.ax.get('email')
+                nickname = request.openid.ax.get('nickname')
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
+                valid_username = False
                 email =  '%s@%s.%s.com'%(nickname, provider, settings.SITE_NAME)
+            else:
+                valid_username = True
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
@@ -46,6 +52,8 @@ class OpenIdBackend:
                 assoc.email = email
             if nickname:
                 assoc.nickname = nickname
+            if valid_username:
+                assoc.is_username_valid = True
             assoc.save()
             
             #Create AuthMeta

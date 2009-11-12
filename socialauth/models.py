@@ -18,6 +18,7 @@ class OpenidProfile(models.Model):
     openid_key = models.CharField(max_length=200,unique=True)
     
     user = models.ForeignKey(User)
+    is_username_valid = models.BooleanField(default = False)
     #Values which we get from openid.sreg
     email = models.EmailField()
     nickname = models.CharField(max_length = 100)
