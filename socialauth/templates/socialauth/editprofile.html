@@ -1,0 +1,16 @@
+{% extends 'socialauth/base.html' %}
+
+
+
+
+{% block content %}
+
+<form action="." method="post">
+    <table>
+    {{ edit_form }}
+    </table>
+    <input type="submit" name="edit profile" value="edit profile" />
+</form>
+
+
+{% endblock %}
