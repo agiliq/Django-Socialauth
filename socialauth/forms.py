@@ -41,9 +41,13 @@ class EditProfileForm(forms.Form):
     
     def clean(self):
         cleaned_data = self.cleaned_data
-        if 'password' in cleaned_data and 'password2' in cleaned_data:
-            if cleaned_data['password'] != cleaned_data['password2']:
-                raise forms.ValidationError('The passwords do not match.')
+        if 'password' in cleaned_data or 'password2' in cleaned_data:
+            if 'password' in cleaned_data and 'password2' in cleaned_data:
+                if cleaned_data['password'] != cleaned_data['password2']:
+                    raise forms.ValidationError('The passwords do not match.')
+            else:
+                raise forms.ValidationError('Either ener both or None of the password fields')
+                    
         return cleaned_data      
         
     def save(self):
@@ -52,7 +56,8 @@ class EditProfileForm(forms.Form):
         user.username = self.cleaned_data['username']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.set_password(self.cleaned_data['password'])
+        if 'password' in self.cleaned_data and 'password2' in self.cleaned_data:
+            user.set_password(self.cleaned_data['password'])
         user.save()
         try:
             authmeta = user.authmeta

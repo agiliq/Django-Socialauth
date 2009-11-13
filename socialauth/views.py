@@ -102,8 +102,6 @@ def gmail_login_complete(request):
 
 
 def yahoo_login(request):
-    import ipdb
-    ipdb.set_trace()
     request.session['openid_provider'] = 'Yahoo'
     return begin(request, user_url='http://yahoo.com/')
 
@@ -172,10 +170,27 @@ def editprofile(request):
         edit_form = EditProfileForm(user=request.user, data=request.POST)
         if edit_form.is_valid():
             user = edit_form.save()
-            request.user.message_set.create('Your profile has been updated.')
+            try:
+                user.authmeta.is_profile_modified = True
+                user.authmeta.save()
+            except AuthMeta.DoesNotExist:
+                pass
+            if user.openidprofile_set.all().count():
+                openid_profile = user.openidprofile_set.all()[0]
+                openid_profile.is_valid_username = True
+                openid_profile.save()
+            try:
+                #If there is a profile. notify that we have set the username
+                profile = user.get_profile()
+                profile.is_valid_username = True
+                profile.save()
+            except:
+                pass
+            request.user.message_set.create(message='Your profile has been updated.')
             return HttpResponseRedirect('.')
     if request.method == 'GET':
         edit_form = EditProfileForm(user = request.user)
+        
     payload = {'edit_form':edit_form}
     return render_to_response('socialauth/editprofile.html', payload, RequestContext(request))
 

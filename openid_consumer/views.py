@@ -187,7 +187,7 @@ def default_on_success(request, identity_url, openid_response):
 def default_on_failure(request, message, template_name='openid_consumer/failure.html'):
     return render(template_name, {
         'message': message
-    }, RequestContext(request))
+    }, 		RequestContext(request))
 
 def signout(request):
     request.session['openids'] = []
