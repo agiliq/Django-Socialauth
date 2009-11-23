@@ -20,7 +20,7 @@ Libs you need to install
 1. python-openid (easy_install)
 2. Yadis (easy_install)
 3. python-openauth(easy_install)
-
+4. pyfacebook (http://code.google.com/p/pyfacebook/)
 
 The API Keys are available from
 

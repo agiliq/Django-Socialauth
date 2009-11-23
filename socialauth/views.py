@@ -136,26 +136,19 @@ def openid_done(request, provider=None):
     
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
-    API_SECRET = settings.FACEBOOK_API_SECRET   
-    REST_SERVER = 'http://api.facebook.com/restserver.php'
-    # FB Connect will set a cookie with a key == FB App API Key if the user has been authenticated
-    if API_KEY in request.COOKIES:
-        signature_hash = get_facebook_signature(API_KEY, API_SECRET, request.COOKIES, True)                
-        # The hash of the values in the cookie to make sure they're not forged
-        # AND If session hasn't expired
-        if(signature_hash == request.COOKIES[API_KEY]) and (datetime.fromtimestamp(float(request.COOKIES[API_KEY+'_expires'])) > datetime.now()):
-            #Log the user in now.
-            user = authenticate(cookies=request.COOKIES)
-            if user:
-                # if user is authenticated then login user
-                login(request, user)
-                return HttpResponseRedirect(reverse('socialauth_signin_complete'))
-            else:
-                #Delete cookies and redirect to main Login page.
-                del request.COOKIES[API_KEY + '_session_key']
-                del request.COOKIES[API_KEY + '_user']
-                return HttpResponseRedirect(reverse('socialauth_login_page'))
-    return HttpResponseRedirect(reverse('socialauth_login_page'))
+
+    if API_KEY not in request.COOKIES:
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
+
+    user = authenticate(request = request)
+
+    if not user:
+        del request.COOKIES[API_KEY + '_session_key']
+        del request.COOKIES[API_KEY + '_user']
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
+
+    login(request, user)
+    return HttpResponseRedirect(reverse('socialauth_signin_complete'))
 
 def openid_login_page(request):
     return render_to_response('openid/index.html', {}, RequestContext(request))

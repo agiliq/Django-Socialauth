@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.conf import settings
+from facebook import Facebook
 
 from socialauth.lib import oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, AuthMeta
@@ -10,9 +11,12 @@ import random
 
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
+
+# Harmonized with PyFacebook
+
 FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
-FACEBOOK_API_SECRET = getattr(settings, 'FACEBOOK_API_SECRET', '')
-FACEBOOK_REST_SERVER = getattr(settings, 'FACEBOOK_REST_SERVER', 'http://api.facebook.com/restserver.php')
+FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
+FACEBOOK_URL = getattr(settings, 'FACEBOOK_URL', 'http://api.facebook.com/restserver.php')
 
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider):
@@ -123,40 +127,42 @@ class TwitterBackend:
         
 
 class FacebookBackend:
-    
-    def authenticate(self, cookies):
-        API_KEY = FACEBOOK_API_KEY
-        API_SECRET = FACEBOOK_API_SECRET   
-        REST_SERVER = FACEBOOK_REST_SERVER
-        if API_KEY in cookies:
-            signature_hash = get_facebook_signature(API_KEY, API_SECRET, cookies, True)                
-            if(signature_hash == cookies[API_KEY]) and (datetime.fromtimestamp(float(cookies[API_KEY+'_expires'])) > datetime.now()):
-                user_info_response  = get_user_info(API_KEY, API_SECRET, cookies)
-                username = user_info_response[0]['first_name']
-                try:
-                    profile = FacebookUserProfile.objects.get(facebook_uid = user_info_response[0]['uid'])
-                    return profile.user
-                except FacebookUserProfile.DoesNotExist:
-                    fb_data = user_info_response[0]
-                    name_count = User.objects.filter(username__istartswith = username).count()
-                    if name_count:
-                        username = '%s%s' % (username, name_count + 1)
-                    user_email = '%s@facebookuser.%s.com'%(user_info_response[0]['first_name'], settings.SITE_NAME)
-                    user = User.objects.create(username = username, email=user_email)
-                    user.first_name = fb_data['first_name']
-                    user.last_name = fb_data['last_name']
-                    user.save()
-                    location = str(fb_data['current_location'])
-                    fb_profile = FacebookUserProfile(facebook_uid = fb_data['uid'], user = user, profile_image_url = fb_data['pic_small'], location=location)
-                    fb_profile.save()
-                    auth_meta = AuthMeta(user=user, provider='Facebook').save()
-                    return user
-            else:
-                return None
-                    
-                
-        else:
+    def authenticate(self, request):
+
+        if not settings.FACEBOOK_API_KEY in request.COOKIES:
             return None
+
+        facebook =  Facebook(settings.FACEBOOK_API_KEY,
+                             settings.FACEBOOK_SECRET_KEY)
+                             
+        check = facebook.check_session(request)
+        fb_user = facebook.users.getLoggedInUser()
+
+        try:
+            profile = FacebookUserProfile.objects.get(facebook_uid = fb_user)
+            return profile.user
+        except FacebookUserProfile.DoesNotExist:
+            fb_data = facebook.users.getInfo([fb_user], ['uid', 'first_name', 'last_name', 'pic_small', 'current_location'])
+            if not fb_data:
+                return None
+            fb_data = fb_data[0]
+
+            username = 'FB:%s' % fb_data['uid']
+            user_email = '%s@facebookuser.%s.com'%(fb_data['first_name'], settings.SITE_NAME)
+            user = User.objects.create(username = username, email=user_email)
+            user.first_name = fb_data['first_name']
+            user.last_name = fb_data['last_name']
+            user.save()
+            location = str(fb_data['current_location'])
+            fb_profile = FacebookUserProfile(facebook_uid = fb_data['uid'], user = user, profile_image_url = fb_data['pic_small'], location=location)
+            fb_profile.save()
+            auth_meta = AuthMeta(user=user, provider='Facebook').save()
+            return user
+        except Exception, e:
+            print str(e)
+
+        return None
+
     
     def get_user(self, user_id):
         try:
