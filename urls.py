@@ -16,6 +16,7 @@ if settings.DEBUG:
     
     urlpatterns += patterns('',
         # This is for the CSS and static files:
-        (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+        (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',
+         {'document_root': settings.MEDIA_ROOT}),
     )
     
