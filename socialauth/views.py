@@ -123,10 +123,10 @@ def openid_done(request, provider=None):
         user = authenticate(openid_key=openid_key, request=request, provider = provider)
         if user:
             login(request, user)
-            if 'openid_next' in request.session :
-                openid_next = request.session.get('openid_next')
-                if len(openid_next.strip()) >  0 :
-                    return HttpResponseRedirect(openid_next)    
+            if 'next' in request.session :
+                next = request.session['next']
+                if len(next.strip()) >  0 :
+                    return HttpResponseRedirect(next)    
             redirect_url = reverse('socialauth_editprofile')
             return HttpResponseRedirect(redirect_url)
         else:
