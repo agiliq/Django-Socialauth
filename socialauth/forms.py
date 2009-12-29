@@ -9,7 +9,6 @@ ALLOW_MULTIPLE_USERNAME_EDITS = getattr(settings, 'ALLOW_MULTIPLE_USERNAME_EDITS
 
 class EditProfileForm(forms.Form):
     email = forms.EmailField()
-    username = forms.CharField(max_length = 100)
     password = forms.CharField(max_length = 100, widget= forms.PasswordInput, required=False, help_text='If you give a password, you can login via a login form as well.')
     password2 = forms.CharField(max_length = 100, widget= forms.PasswordInput, required=False, label='Repeat password')
     first_name = forms.CharField(max_length = 100, required=False)
@@ -19,26 +18,9 @@ class EditProfileForm(forms.Form):
         super(EditProfileForm, self).__init__(*args, **kwargs)
         self.user = user
         if self.user:
-            self.initial = {'email': user.email, 'username': user.username, \
+            self.initial = {'email': user.email,  \
                         'first_name':user.first_name, 'last_name':user.last_name}
             
-    def clean_username(self):
-        try:
-            authmeta = self.user.authmeta
-            if not ALLOW_MULTIPLE_USERNAME_EDITS and authmeta.is_profile_modified:
-                raise forms.ValidationError('You have already edited your username. Only a single edit to the password is allowed.')
-        except AuthMeta.DoesNotExist:
-            pass
-        
-        data = self.cleaned_data['username']
-        if data ==  self.user.username:
-            return data
-        try:
-            User.objects.get(username = data)
-            raise forms.ValidationError("This username is already taken.")
-        except User.DoesNotExist:
-            return data
-    
     def clean(self):
         cleaned_data = self.cleaned_data
         if 'password' in cleaned_data or 'password2' in cleaned_data:
@@ -53,7 +35,6 @@ class EditProfileForm(forms.Form):
     def save(self):
         user = self.user
         user.email = self.cleaned_data['email']
-        user.username = self.cleaned_data['username']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         if 'password' in self.cleaned_data and 'password2' in self.cleaned_data:
