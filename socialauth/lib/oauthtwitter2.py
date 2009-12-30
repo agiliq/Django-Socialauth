@@ -10,7 +10,7 @@ CALLBACK_URL = 'http://example.com/newaccounts/login/done/'
 
 REQUEST_TOKEN_URL = 'https://twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
-AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
+AUTHORIZATION_URL = 'http://twitter.com/oauth/authenticate'
 
 #CONSUMER_KEY = settings.TWITTER_CONSUMER_KEY
 #CONSUMER_SECRET = settings.TWITTER_CONSUMER_SECRET
