@@ -134,7 +134,7 @@ class FacebookBackend:
                 user_info_response  = get_user_info(API_KEY, API_SECRET, cookies)
                 username = user_info_response[0]['first_name']
                 try:
-                    profile = FacebookUserProfile.objects.get(facebook_uid = user_info_response[0]['uid'])
+                    profile = FacebookUserProfile.objects.get(facebook_uid = str(user_info_response[0]['uid']))
                     return profile.user
                 except FacebookUserProfile.DoesNotExist:
                     fb_data = user_info_response[0]
