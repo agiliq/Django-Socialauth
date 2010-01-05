@@ -17,7 +17,7 @@ TWITTER_CONSUMER_KEY = ''
 TWITTER_CONSUMER_SECRET = ''
 
 FACEBOOK_API_KEY = ''
-FACEBOOK_API_SECRET = ''
+FACEBOOK_SECRET_KEY = ''
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'socialauth.auth_backends.OpenIdBackend',
@@ -25,7 +25,6 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'socialauth.auth_backends.FacebookBackend',
                            )
 
-LOGIN_REDIRECT_URL = '/login/done/'
 
 
 
