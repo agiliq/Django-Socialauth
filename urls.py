@@ -6,8 +6,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^accounts/', include('socialauth.urls')),
-    (r'^admin/', admin.site.urls), 
-    (r'^$', leave_comment), 
+    # (r'^admin/', admin.site.urls), 
+    (r'^$', 'socialauth.views.signin_complete'), 
 
 )
 from django.conf import settings
