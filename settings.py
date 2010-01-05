@@ -92,7 +92,10 @@ LOGIN_REDIRECT_URL = '/login/done/'
 
 LOGOUT_REDIRECT_URL = '/'
 
-from localsettings import *
+try:
+    from local_settings import *
+except ImportError:
+    pass
 
 import os
 MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'media'))
