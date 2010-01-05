@@ -21,6 +21,7 @@ from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
 """
 
 from openid_consumer.views import begin
+from socialauth import context_processors
 from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.lib import oauthyahoo
 from socialauth.lib import oauthgoogle
@@ -33,11 +34,9 @@ import random
 from datetime import datetime
 from cgi import parse_qs
 
-
-
 def login_page(request):
-    payload = {'fb_api_key':settings.FACEBOOK_API_KEY,}
-    return render_to_response('socialauth/login_page.html', payload, RequestContext(request))
+    return render_to_response('socialauth/login_page.html', context_processors.socialauth(request), 
+            RequestContext(request))
 
 def twitter_login(request):
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
