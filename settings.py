@@ -9,8 +9,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
+DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'dev.db'              # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -65,6 +65,10 @@ MIDDLEWARE_CLASSES = (
     #'socialauth.middleware.FacebookConnectMiddleware'
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "socialauth.context_processors.facebook_api_key",
+)
+
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
@@ -83,6 +87,10 @@ INSTALLED_APPS = (
     'openid_consumer',
     'commentor',
 )
+
+LOGIN_REDIRECT_URL = '/login/done/'
+
+LOGOUT_REDIRECT_URL = '/'
 
 from localsettings import *
 
