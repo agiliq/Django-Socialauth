@@ -2,7 +2,7 @@
 *.pyc
 *~
 build/
-localsettings.py
+local?settings.py
 .svn/
 .svn/*
 data.db
