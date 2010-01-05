@@ -17,7 +17,7 @@ class OpenidProfile(models.Model):
     """A class associating an User to a Openid"""
     openid_key = models.CharField(max_length=200,unique=True)
     
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='openid_profiles')
     is_username_valid = models.BooleanField(default = False)
     #Values which we get from openid.sreg
     email = models.EmailField()
@@ -37,7 +37,7 @@ class TwitterUserProfile(models.Model):
     """
     screen_name = models.CharField(max_length = 200, unique = True)
     
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='twitter_profiles')
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
@@ -54,13 +54,9 @@ class FacebookUserProfile(models.Model):
     """
     facebook_uid = models.CharField(max_length = 20, unique = True)
     
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='facebook_profiles')
     profile_image_url = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     about_me = models.CharField(max_length=160, blank=True, null=True)
-    
-    
-
-
 
