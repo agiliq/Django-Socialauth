@@ -1,3 +1,4 @@
+import urllib2
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import UserManager, User
@@ -7,13 +8,16 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
+from django.utils.translation import ugettext_lazy as _
 try:
     import json#Works with Python 2.6
 except ImportError:
     from django.utils import simplejson as json
 
-from socialauth.models import OpenidProfile, AuthMeta
+from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile
 from socialauth.forms import EditProfileForm
+from socialauth import context_processors
+from socialauth.lib.facebook import get_fb_data
 
 """
 from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
@@ -21,8 +25,7 @@ from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
 """
 
 from openid_consumer.views import begin
-from socialauth import context_processors
-from socialauth.lib import oauthtwitter2 as oauthtwitter
+from socialauth.lib import oauthtwitter
 from socialauth.lib import oauthyahoo
 from socialauth.lib import oauthgoogle
 from socialauth.lib.facebook import get_user_info, get_facebook_signature, \
@@ -39,10 +42,10 @@ def login_page(request):
             RequestContext(request))
 
 def twitter_login(request):
-    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.fetch_request_token()  
+    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+    request_token = twitter.getRequestToken()
     request.session['request_token'] = request_token.to_string()
-    signin_url = twitter.authorize_token_url(request_token)  
+    signin_url = twitter.getAuthorizationURL(request_token)
     return HttpResponseRedirect(signin_url)
 
 def twitter_login_done(request):
@@ -51,21 +54,22 @@ def twitter_login_done(request):
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
-            # Redirect the user to the login page,
-            # So the user can click on the sign-in with twitter button
-            return HttpResponse("We didn't redirect you to twitter...")
+        # Redirect the user to the login page,
+        # So the user can click on the sign-in with twitter button
+        # TODO: use error page with message and redirect
+        return HttpResponse("We didn't redirect you to twitter...")
     
     token = oauth.OAuthToken.from_string(request_token)
     
     # If the token from session and token from twitter does not match
     #   means something bad happened to tokens
     if token.key != request.GET.get('oauth_token', 'no-token'):
-            del request.session['request_token']
-            # Redirect the user to the login page
-            return HttpResponse("Something wrong! Tokens do not match...")
+        del request.session['request_token']
+        # TODO: use error page with message and redirect
+        return HttpResponse("Something wrong! Tokens do not match...")
     
-    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)  
-    access_token = twitter.fetch_access_token(token)
+    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET, token)  
+    access_token = twitter.getAccessToken() 
     
     request.session['access_token'] = access_token.to_string()
     user = authenticate(access_token=access_token)
