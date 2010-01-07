@@ -14,7 +14,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile
+from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile, TwitterUserProfile
 from socialauth.forms import EditProfileForm
 from socialauth import context_processors
 from socialauth.lib.facebook import get_fb_data
@@ -72,11 +72,23 @@ def twitter_login_done(request):
     access_token = twitter.getAccessToken() 
     
     request.session['access_token'] = access_token.to_string()
-    user = authenticate(access_token=access_token)
-    
+    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET, 
+                access_token)  
+    twitter_user = twitter.GetUserInfo()
+    print twitter_user.__dict__
+    if request.user.is_authenticated():
+        user = request.user
+        user_profile, created = TwitterUserProfile.objects.get_or_create(screen_name = twitter_user.screen_name,
+            defaults = dict(user=user, access_token=access_token, url=twitter_user.url, 
+                            location=twitter_user.location, description=twitter_user.description,
+                            profile_image_url=twitter_user.profile_image_url)
+            )
+        user = user_profile.user
+
+    user = authenticate(twitter_user=twitter_user)
     # if user is authenticated then login user
     if user:
-        login(request, user)
+        return login_and_next(request, user)
     else:
         # We were not able to authenticate user
         # Redirect to login page
@@ -119,45 +131,61 @@ def openid_done(request, provider=None):
     """
     if not provider:
         provider = request.session.get('openid_provider', '')
-    if  request.openid:
+    if request.openid:
         #check for already existing associations
         openid_key = str(request.openid)
         #authenticate and login
         user = authenticate(openid_key=openid_key, request=request, provider = provider)
         if user:
-            login(request, user)
-            if 'next' in request.session :
-                next = request.session['next']
-                if len(next.strip()) >  0 :
-                    return HttpResponseRedirect(next)    
-            redirect_url = reverse('socialauth_editprofile')
-            return HttpResponseRedirect(redirect_url)
+            return login_and_next(request, user)
         else:
             return HttpResponseRedirect(settings.LOGIN_URL)
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-    
+
+def login_and_next(request, user, message=''):
+    login(request, user)
+    if 'next' in request.session :
+       next = request.session['next']
+       del request.session['next']
+       if len(next.strip()) >  0 :
+           return HttpResponseRedirect(next)    
+    url = reverse(settings.EDIT_PROFILE_URLNAME) + (message and '?message=%s' % message)
+    return HttpResponseRedirect(url)
+
 def facebook_login_done(request):
+    message = ''
     API_KEY = settings.FACEBOOK_API_KEY
-    API_SECRET = settings.FACEBOOK_API_SECRET   
-    REST_SERVER = 'http://api.facebook.com/restserver.php'
-    # FB Connect will set a cookie with a key == FB App API Key if the user has been authenticated
-    if API_KEY in request.COOKIES:
-        signature_hash = get_facebook_signature(API_KEY, API_SECRET, request.COOKIES, True)                
-        # The hash of the values in the cookie to make sure they're not forged
-        # AND If session hasn't expired
-        if(signature_hash == request.COOKIES[API_KEY]) and (datetime.fromtimestamp(float(request.COOKIES[API_KEY+'_expires'])) > datetime.now()):
-            #Log the user in now.
-            user = authenticate(cookies=request.COOKIES)
-            if user:
-                # if user is authenticated then login user
-                login(request, user)
-                return HttpResponseRedirect(reverse('socialauth_signin_complete'))
+    if request.user.is_authenticated():
+        fb_data = get_fb_data(API_KEY, settings.FACEBOOK_API_SECRET, request.COOKIES)
+        if fb_data:
+            user = request.user
+            location = str(fb_data['current_location'])
+            uid = str(fb_data['uid'])
+            fb_profile, created = FacebookUserProfile.objects.get_or_create(facebook_uid = uid, 
+                defaults=dict(user = user, profile_image_url = fb_data['pic_small'], location=location))
+            # funny thing, we can keep old first and update last...
+            if created:
+                if not user.first_name:
+                    user.first_name = fb_data['first_name']
+                if not user.last_name:
+                    user.last_name = fb_data['last_name']
+                user.save()
             else:
-                #Delete cookies and redirect to main Login page.
-                del request.COOKIES[API_KEY + '_session_key']
-                del request.COOKIES[API_KEY + '_user']
-                return HttpResponseRedirect(reverse('socialauth_login_page'))
+                #TODO:add a mesaage to the user that the fb account is already associated 
+                # with a diffrent user account
+                message = _('Facebook account is already associated with this account')
+    user = authenticate(cookies=request.COOKIES)
+    if user:
+        # if user is authenticated then login user
+        return login_and_next(request, user, message)
+    else:
+        #Delete cookies and redirect to main Login page.
+        del request.COOKIES[API_KEY + '_session_key']
+        del request.COOKIES[API_KEY + '_user']
+        # TODO: maybe the project has its own login page?
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
+
     return HttpResponseRedirect(reverse('socialauth_login_page'))
 
 def openid_login_page(request):

@@ -2,9 +2,9 @@ import md5
 import urllib
 import time
 import simplejson
+from datetime import datetime
 
 REST_SERVER = 'http://api.facebook.com/restserver.php'
-
 
 def get_user_info(api_key, api_secret, cookies):
     user_info_params = {
@@ -74,5 +74,12 @@ def get_facebook_signature(api_key, api_secret, values_dict, is_cookie_check=Fal
 
         return md5.new(signature_string).hexdigest()
     
-    
-    
+def get_fb_data(api_key, api_secret, cookies):
+    if api_key in cookies:
+        signature_hash = get_facebook_signature(api_key, api_secret, cookies, True)                
+        if(signature_hash == cookies[api_key]) and (datetime.fromtimestamp(float(cookies[api_key+'_expires'])) > datetime.now()):
+            user_info_response  = get_user_info(api_key, api_secret, cookies)
+            return user_info_response[0]
+    return None
+
+
