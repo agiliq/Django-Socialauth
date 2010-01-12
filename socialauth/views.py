@@ -1,3 +1,4 @@
+import urllib
 import urllib2
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -8,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 try:
     import json#Works with Python 2.6
 except ImportError:
@@ -75,7 +76,7 @@ def twitter_login_done(request):
     twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET, 
                 access_token)  
     twitter_user = twitter.GetUserInfo()
-    print twitter_user.__dict__
+    message = ''
     if request.user.is_authenticated():
         user = request.user
         user_profile, created = TwitterUserProfile.objects.get_or_create(screen_name = twitter_user.screen_name,
@@ -83,12 +84,16 @@ def twitter_login_done(request):
                             location=twitter_user.location, description=twitter_user.description,
                             profile_image_url=twitter_user.profile_image_url)
             )
+        if not created:
+                #TODO:add a mesaage to the user that the fb account is already associated 
+                # with a diffrent user account
+                message = _('Twitter account is already associated with this account')
         user = user_profile.user
 
     user = authenticate(twitter_user=twitter_user)
     # if user is authenticated then login user
     if user:
-        return login_and_next(request, user)
+        return login_and_next(request, user, message=message)
     else:
         # We were not able to authenticate user
         # Redirect to login page
@@ -143,14 +148,14 @@ def openid_done(request, provider=None):
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
 
-def login_and_next(request, user, message=''):
+def login_and_next(request, user, **params):
     login(request, user)
     if 'next' in request.session :
        next = request.session['next']
        del request.session['next']
        if len(next.strip()) >  0 :
            return HttpResponseRedirect(next)    
-    url = reverse(settings.EDIT_PROFILE_URLNAME) + (message and '?message=%s' % message)
+    url = '%s?%s' % (reverse(settings.EDIT_PROFILE_URLNAME), urllib.urlencode(params))
     return HttpResponseRedirect(url)
 
 def facebook_login_done(request):
@@ -178,7 +183,7 @@ def facebook_login_done(request):
     user = authenticate(cookies=request.COOKIES)
     if user:
         # if user is authenticated then login user
-        return login_and_next(request, user, message)
+        return login_and_next(request, user, message=message)
     else:
         #Delete cookies and redirect to main Login page.
         del request.COOKIES[API_KEY + '_session_key']
