@@ -172,9 +172,9 @@ def facebook_login(request, device="mobile"):
     # Cancel link must be a full URL
     params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page")
 
-    if device == "mobile"
+    if device == "mobile":
         url = "http://m.facebook.com/tos.php?" + urrlib.urlencode(params)
-    if device == "touch"
+    if device == "touch":
         url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
     else:
         # send them to the mobile site by default
