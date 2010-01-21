@@ -17,8 +17,6 @@ except ImportError:
 
 from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile, TwitterUserProfile
 from socialauth.forms import EditProfileForm
-from socialauth import context_processors
-from socialauth.lib.facebook import get_fb_data
 
 """
 from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
@@ -26,7 +24,7 @@ from socialauth.models import YahooContact, TwitterContact, FacebookContact,\
 """
 
 from openid_consumer.views import begin
-from socialauth.lib import oauthtwitter
+from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.lib import oauthyahoo
 from socialauth.lib import oauthgoogle
 from socialauth.lib.facebook import get_user_info, get_facebook_signature, \
@@ -38,15 +36,17 @@ import random
 from datetime import datetime
 from cgi import parse_qs
 
+
+
 def login_page(request):
-    return render_to_response(request.device + '/socialauth/login_page.html', context_processors.socialauth(request), 
-            RequestContext(request))
+    payload = {'fb_api_key':settings.FACEBOOK_API_KEY,}
+    return render_to_response(request.device + '/socialauth/login_page.html', payload, RequestContext(request))
 
 def twitter_login(request):
-    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.getRequestToken()
+    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+    request_token = twitter.fetch_request_token()  
     request.session['request_token'] = request_token.to_string()
-    signin_url = twitter.getAuthorizationURL(request_token)
+    signin_url = twitter.authorize_token_url(request_token)  
     return HttpResponseRedirect(signin_url)
 
 def twitter_login_done(request):
@@ -55,45 +55,28 @@ def twitter_login_done(request):
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
-        # Redirect the user to the login page,
-        # So the user can click on the sign-in with twitter button
-        # TODO: use error page with message and redirect
-        return HttpResponse("We didn't redirect you to twitter...")
+            # Redirect the user to the login page,
+            # So the user can click on the sign-in with twitter button
+            return HttpResponse("We didn't redirect you to twitter...")
     
     token = oauth.OAuthToken.from_string(request_token)
     
     # If the token from session and token from twitter does not match
     #   means something bad happened to tokens
     if token.key != request.GET.get('oauth_token', 'no-token'):
-        del request.session['request_token']
-        # TODO: use error page with message and redirect
-        return HttpResponse("Something wrong! Tokens do not match...")
+            del request.session['request_token']
+            # Redirect the user to the login page
+            return HttpResponse("Something wrong! Tokens do not match...")
     
-    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET, token)  
-    access_token = twitter.getAccessToken() 
+    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)  
+    access_token = twitter.fetch_access_token(token)
     
     request.session['access_token'] = access_token.to_string()
-    twitter = oauthtwitter.OAuthApi(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET, 
-                access_token)  
-    twitter_user = twitter.GetUserInfo()
-    message = ''
-    if request.user.is_authenticated():
-        user = request.user
-        user_profile, created = TwitterUserProfile.objects.get_or_create(screen_name = twitter_user.screen_name,
-            defaults = dict(user=user, access_token=access_token, url=twitter_user.url, 
-                            location=twitter_user.location, description=twitter_user.description,
-                            profile_image_url=twitter_user.profile_image_url)
-            )
-        if not created:
-                #TODO:add a mesaage to the user that the fb account is already associated 
-                # with a diffrent user account
-                message = _('Twitter account is already associated with this account')
-        user = user_profile.user
-
-    user = authenticate(twitter_user=twitter_user)
+    user = authenticate(access_token=access_token)
+    
     # if user is authenticated then login user
     if user:
-        return login_and_next(request, user, message=message)
+        login(request, user)
     else:
         # We were not able to authenticate user
         # Redirect to login page
@@ -136,83 +119,40 @@ def openid_done(request, provider=None):
     """
     if not provider:
         provider = request.session.get('openid_provider', '')
-    if request.openid:
+    if  request.openid:
         #check for already existing associations
         openid_key = str(request.openid)
         #authenticate and login
         user = authenticate(openid_key=openid_key, request=request, provider = provider)
         if user:
-            return login_and_next(request, user)
+            login(request, user)
+            if 'openid_next' in request.session :
+                openid_next = request.session.get('openid_next')
+                if len(openid_next.strip()) >  0 :
+                    return HttpResponseRedirect(openid_next)    
+            redirect_url = reverse('socialauth_editprofile')
+            return HttpResponseRedirect(redirect_url)
         else:
             return HttpResponseRedirect(settings.LOGIN_URL)
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-
-def login_and_next(request, user, **params):
-    login(request, user)
-    if 'next' in request.session :
-       next = request.session['next']
-       del request.session['next']
-       if len(next.strip()) >  0 :
-           return HttpResponseRedirect(next)    
-    url = '%s?%s' % (reverse(settings.EDIT_PROFILE_URLNAME), urllib.urlencode(params))
-    return HttpResponseRedirect(url)
-
-def facebook_login(request):
-    """
-    This is a facebook login page for devices
-    that cannot use the FBconnect javascript
-    e.g. mobiles, iPhones
-    """
-    params = {}
-    params["api_key"] = settings.FACEBOOK_API_KEY
-    params["v"] = "1.0"
-    params["next"] = reverse("socialauth_facebook_login_done")[1:] # remove leading slash
-    params["canvas"] = "0"
-    # Cancel link must be a full URL
-    params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page"))
-
-    if request.device == "mobile":
-        url = "http://m.facebook.com/tos.php?" + urllib.urlencode(params)
-    elif request.device == "touch":
-        url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
-
-    return HttpResponseRedirect(url)
-
+    
 def facebook_login_done(request):
-    message = ''
     API_KEY = settings.FACEBOOK_API_KEY
-    if request.user.is_authenticated():
-        fb_data = get_fb_data(API_KEY, settings.FACEBOOK_API_SECRET, request.COOKIES)
-        if fb_data:
-            user = request.user
-            location = str(fb_data['current_location'])
-            uid = str(fb_data['uid'])
-            fb_profile, created = FacebookUserProfile.objects.get_or_create(facebook_uid = uid, 
-                defaults=dict(user = user, profile_image_url = fb_data['pic_small'], location=location))
-            # funny thing, we can keep old first and update last...
-            if created:
-                if not user.first_name:
-                    user.first_name = fb_data['first_name']
-                if not user.last_name:
-                    user.last_name = fb_data['last_name']
-                user.save()
-            else:
-                #TODO:add a mesaage to the user that the fb account is already associated 
-                # with a diffrent user account
-                message = _('Facebook account is already associated with this account')
-    user = authenticate(cookies=request.COOKIES)
-    if user:
-        # if user is authenticated then login user
-        return login_and_next(request, user, message=message)
-    else:
-        #Delete cookies and redirect to main Login page.
+
+    if API_KEY not in request.COOKIES:
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
+
+    user = authenticate(request = request)
+
+    if not user:
         del request.COOKIES[API_KEY + '_session_key']
         del request.COOKIES[API_KEY + '_user']
         # TODO: maybe the project has its own login page?
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
-    return HttpResponseRedirect(reverse('socialauth_login_page'))
+    login(request, user)
+    return HttpResponseRedirect(reverse('socialauth_signin_complete'))
 
 def openid_login_page(request):
     return render_to_response(request.device + '/openid/index.html', {}, RequestContext(request))

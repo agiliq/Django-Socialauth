@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Komodo Project File - DO NOT EDIT -->
-<project id="cd6c038f-b565-4414-934c-c6719cbb1a5e" kpf_version="4" name="social_authentication.kpf">
-<preference-set idref="cd6c038f-b565-4414-934c-c6719cbb1a5e">
-  <boolean id="import_live">1</boolean>
-</preference-set>
-</project>

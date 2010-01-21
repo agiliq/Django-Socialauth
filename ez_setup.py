@@ -110,6 +110,8 @@ def use_setuptools(
     except pkg_resources.DistributionNotFound:
         return do_download()
 
+
+
 def download_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
     delay = 15
@@ -158,40 +160,6 @@ and place it in this directory before rerunning this script.)
     return os.path.realpath(saveto)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
     try:
@@ -232,6 +200,8 @@ def main(argv, version=DEFAULT_VERSION):
         else:
             print "Setuptools version",version,"or greater has been installed."
             print '(Run "ez_setup.py -U setuptools" to reinstall or upgrade.)'
+
+
 
 def update_md5(filenames):
     """Update our built-in md5 registry"""
