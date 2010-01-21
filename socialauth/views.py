@@ -158,6 +158,29 @@ def login_and_next(request, user, **params):
     url = '%s?%s' % (reverse(settings.EDIT_PROFILE_URLNAME), urllib.urlencode(params))
     return HttpResponseRedirect(url)
 
+def facebook_login(request, device="mobile"):
+    """
+    This is a facebook login page for devices
+    that cannot use the FBconnect javascript
+    e.g. mobiles, iPhones
+    """
+    params = {}
+    params["api_key"] = settings.FACEBOOK_API_KEY
+    params["v"] = "1.0"
+    params["next"] = reverse("socialauth_facebook_login_done")[1:] # remove leading slash
+    params["canvas"] = "0"
+    # Cancel link must be a full URL
+    params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page")
+
+    if device == "mobile"
+        url = "http://m.facebook.com/tos.php?" + urrlib.urlencode(params)
+    if device == "touch"
+        url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
+    else:
+        # send them to the mobile site by default
+        url = "http://m.facebook.com/tos.php?" + urllib.urlencode(params)
+    return HttpResponseRedirect(url)
+
 def facebook_login_done(request):
     message = ''
     API_KEY = settings.FACEBOOK_API_KEY
