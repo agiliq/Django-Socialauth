@@ -3,8 +3,8 @@ ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 setup(
     name = "django-socialauth",
-    version = "0.1.2",
-    packages = ['socialauth', 'openid_consumer'],
+    version = "0.1.2a",
+    packages = find_packages(exclude=['commentor']),
     author = "Usware Technologies",
     author_email = "info@uswaretech.com",
     description = "Allows logging via Facebook, Yahoo, Gmail, Twitter and Openid ",
