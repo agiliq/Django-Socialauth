@@ -107,7 +107,7 @@ class TwitterBackend:
             except:
                 first_name, last_name =  screen_name, ''
             user.first_name, user.last_name = first_name, last_name
-            user.email = '%s@twitteruser.%s.com'%(userinfo.screen_name, settings.SITE_NAME)
+            user.email = '%s@example.com'%(userinfo.screen_name)
             user.save()
             userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             # userprofile.access_token = access_token.key
@@ -147,7 +147,7 @@ class FacebookBackend:
             fb_data = fb_data[0]
 
             username = 'FB:%s' % fb_data['uid']
-            user_email = '%s@facebookuser.%s.com'%(fb_data['first_name'], settings.SITE_NAME)
+            user_email = '%s@example.com'%(fb_data['first_name'])
             user = User.objects.create(username = username, email=user_email)
             user.first_name = fb_data['first_name']
             user.last_name = fb_data['last_name']
