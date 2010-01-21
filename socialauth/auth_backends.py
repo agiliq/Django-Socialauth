@@ -37,7 +37,7 @@ class OpenIdBackend:
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
                 valid_username = False
-                email =  '%s@%s.%s.com'%(nickname, provider, settings.SITE_NAME)
+                email =  '%s@example.com'%(nickname)
             else:
                 valid_username = True
             name_count = User.objects.filter(username__startswith = nickname).count()
