@@ -39,7 +39,7 @@ from datetime import datetime
 from cgi import parse_qs
 
 def login_page(request):
-    return render_to_response('socialauth/login_page.html', context_processors.socialauth(request), 
+    return render_to_response(request.device + '/socialauth/login_page.html', context_processors.socialauth(request), 
             RequestContext(request))
 
 def twitter_login(request):
@@ -158,7 +158,7 @@ def login_and_next(request, user, **params):
     url = '%s?%s' % (reverse(settings.EDIT_PROFILE_URLNAME), urllib.urlencode(params))
     return HttpResponseRedirect(url)
 
-def facebook_login(request, device="mobile"):
+def facebook_login(request):
     """
     This is a facebook login page for devices
     that cannot use the FBconnect javascript
@@ -170,15 +170,13 @@ def facebook_login(request, device="mobile"):
     params["next"] = reverse("socialauth_facebook_login_done")[1:] # remove leading slash
     params["canvas"] = "0"
     # Cancel link must be a full URL
-    params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page")
+    params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page"))
 
-    if device == "mobile":
-        url = "http://m.facebook.com/tos.php?" + urrlib.urlencode(params)
-    if device == "touch":
-        url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
-    else:
-        # send them to the mobile site by default
+    if request.device == "mobile":
         url = "http://m.facebook.com/tos.php?" + urllib.urlencode(params)
+    elif request.device == "touch":
+        url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
+
     return HttpResponseRedirect(url)
 
 def facebook_login_done(request):
@@ -217,11 +215,11 @@ def facebook_login_done(request):
     return HttpResponseRedirect(reverse('socialauth_login_page'))
 
 def openid_login_page(request):
-    return render_to_response('openid/index.html', {}, RequestContext(request))
+    return render_to_response(request.device + '/openid/index.html', {}, RequestContext(request))
     
 def signin_complete(request):
     payload = {}
-    return render_to_response('socialauth/signin_complete.html', payload, RequestContext(request))
+    return render_to_response(request.device + '/socialauth/signin_complete.html', payload, RequestContext(request))
 
 @login_required
 def editprofile(request):
@@ -251,7 +249,7 @@ def editprofile(request):
         edit_form = EditProfileForm(user = request.user)
         
     payload = {'edit_form':edit_form}
-    return render_to_response('socialauth/editprofile.html', payload, RequestContext(request))
+    return render_to_response(request.device + '/socialauth/editprofile.html', payload, RequestContext(request))
 
 def social_logout(request):
     # Todo
