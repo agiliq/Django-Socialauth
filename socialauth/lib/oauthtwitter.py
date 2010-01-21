@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # 
-# Copyright under  the latest Apache License 2.0
+# Copyright under GPLv3
 
 '''A class the inherits everything from python-twitter and allows oauth based access
 
@@ -11,7 +11,7 @@ Requires:
 '''
 
 __author__ = "Hameedullah Khan <hameed@hameedkhan.net>"
-__version__ = "0.2"
+__version__ = "0.1"
 
 
 from twitter import Api, User
@@ -19,10 +19,12 @@ from twitter import Api, User
 import simplejson
 from oauth import oauth
 
+
+
 # Taken from oauth implementation at: http://github.com/harperreed/twitteroauth-python/tree/master
 REQUEST_TOKEN_URL = 'https://twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
-AUTHORIZATION_URL = 'http://twitter.com/oauth/authenticate' #authorize'
+AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
 SIGNIN_URL = 'http://twitter.com/oauth/authenticate'
 
 
@@ -62,8 +64,11 @@ class OAuthApi(Api):
         '''
         # Build the extra parameters dict
         extra_params = {}
-        if self._default_params:
-          extra_params.update(self._default_params)
+        try:
+            if self._default_params:
+              extra_params.update(self._default_params)
+        except AttributeError:
+            pass
         if parameters:
           extra_params.update(parameters)
     
@@ -158,24 +163,28 @@ class OAuthApi(Api):
         req.sign_request(signature_method, self._Consumer, self._access_token)
     
 
-    def getAuthorizationURL(self, token, url=AUTHORIZATION_URL):
+    def getAuthorizationURL(self, token, url=AUTHORIZATION_URL, callback_url = None):
         '''Create a signed authorization URL
         
         Returns:
           A signed OAuthRequest authorization URL 
         '''
-        req = self._makeOAuthRequest(url, token=token)
+        if callback_url:
+            parameters= {'oauth_callback':callback_url}
+        else:
+            parameters= {}
+        req = self._makeOAuthRequest(url, token=token, parameters=parameters)
         self._signRequest(req)
         return req.to_url()
 
-    def getSigninURL(self, token, url=SIGNIN_URL):
+    def getSigninURL(self, token, url=SIGNIN_URL, callback_url = None):
         '''Create a signed Sign-in URL
         
         Returns:
           A signed OAuthRequest Sign-in URL 
         '''
         
-        signin_url = self.getAuthorizationURL(token, url)
+        signin_url = self.getAuthorizationURL(token, url, callback_url)
         return signin_url
     
     def getAccessToken(self, url=ACCESS_TOKEN_URL):
@@ -202,3 +211,4 @@ class OAuthApi(Api):
         data = simplejson.loads(json)
         self._CheckForTwitterError(data)
         return User.NewFromJsonDict(data)
+        

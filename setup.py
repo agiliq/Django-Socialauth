@@ -20,5 +20,4 @@ setup(
     author_email = "info@uswaretech.com",
     description = "Allows logging via Facebook, Yahoo, Gmail, Twitter and Openid ",
     url = "http://socialauth.uswaretech.net/",
-    zip_safe = False,
 )
