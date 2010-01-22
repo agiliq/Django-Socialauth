@@ -15,7 +15,7 @@ class AuthMeta(models.Model):
 
 class OpenidProfile(models.Model):
     """A class associating an User to a Openid"""
-    openid_key = models.CharField(max_length=200,unique=True)
+    openid_key = models.CharField(max_length=200,unique=True, db_index = True)
     
     user = models.ForeignKey(User, related_name='openid_profiles')
     is_username_valid = models.BooleanField(default = False)
@@ -50,7 +50,7 @@ class TwitterUserProfile(models.Model):
     """
     For users who login via Twitter.
     """
-    screen_name = models.CharField(max_length = 200, unique = True)
+    screen_name = models.CharField(max_length = 200, unique = True, db_index = True)
     
     user = models.ForeignKey(User, related_name='twitter_profiles')
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
@@ -67,7 +67,7 @@ class FacebookUserProfile(models.Model):
     """
     For users who login via Facebook.
     """
-    facebook_uid = models.CharField(max_length = 20, unique = True)
+    facebook_uid = models.CharField(max_length = 20, unique = True, db_index = True)
     
     user = models.ForeignKey(User, related_name='facebook_profiles')
     profile_image_url = models.URLField(blank=True, null=True)
