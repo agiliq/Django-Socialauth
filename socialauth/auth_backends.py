@@ -5,6 +5,7 @@ from facebook import Facebook
 from socialauth.lib import oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, AuthMeta
 from socialauth.lib.facebook import get_user_info, get_facebook_signature
+from socialauth.lib.linkedin import *
 
 from datetime import datetime
 import random
@@ -17,6 +18,11 @@ TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
 FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
 FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 FACEBOOK_URL = getattr(settings, 'FACEBOOK_URL', 'http://api.facebook.com/restserver.php')
+
+# Linkedin
+
+LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
+LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider):
@@ -37,7 +43,7 @@ class OpenIdBackend:
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
                 valid_username = False
-                email =  '%s@openid.com'%(nickname)
+                email =  '%s@example.openid.com'%(nickname)
             else:
                 valid_username = True
             name_count = User.objects.filter(username__startswith = nickname).count()
@@ -70,6 +76,47 @@ class OpenIdBackend:
             user = User.objects.get(pk = user_id)
             return user
         except User.DoesNotExist:
+            return None
+
+class LinkedInBackend:
+    """LinkedInBackend for authentication
+    """
+    def authenticate(self, access_token):
+        linkedin = LinkedIn(settings.LINKEDIN_API_KEY, settings.LINKEDIN_SECRET_KEY)
+        api = LinkedInApi(linkedin)
+        # get their profile
+        
+        profile = ProfileApi(api).getMyProfile(access_token = access_token)
+
+        try:
+            user_profile = LinkedInProfile.objects.get(linkedin_uid = profile.id)
+            user = user_profile.user
+            return user
+        except LinkedInProfile.DoesNotExist:
+            # Create a new user
+            username = 'LI:%s' % profile.id
+            user = User(username =  username)
+            temp_password = User.objects.make_random_password(length=12)
+            user.set_password(temp_password)
+            user.first_name, user.last_name = person.firstname, person.lastname
+            user.email = '%s@example.linkedin.com'%(person.id)
+            user.save()
+            userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
+            userprofile.access_token = access_token.key
+            userprofile.headline = person.headline
+            userprofile.company = person.company
+            userprofile.location = person.location
+            userprofile.industry = person.industry
+            userprofile.profile_image_url = person.picture_url
+            userprofile.url = person.profile_url
+            userprofile.save()
+            auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
+            return user
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
             return None
 
 class TwitterBackend:
@@ -107,7 +154,7 @@ class TwitterBackend:
             except:
                 first_name, last_name =  screen_name, ''
             user.first_name, user.last_name = first_name, last_name
-            user.email = '%s@twitter.com'%(userinfo.screen_name)
+            user.email = '%s@example.twitter.com'%(userinfo.screen_name)
             user.save()
             userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             # userprofile.access_token = access_token.key
@@ -147,7 +194,7 @@ class FacebookBackend:
             fb_data = fb_data[0]
 
             username = 'FB:%s' % fb_data['uid']
-            user_email = '%s@facebook.com'%(fb_data['uid'])
+            user_email = '%s@example.facebook.com'%(fb_data['uid'])
             user = User.objects.create(username = username, email=user_email)
             user.first_name = fb_data['first_name']
             user.last_name = fb_data['last_name']

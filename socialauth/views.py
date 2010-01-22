@@ -29,6 +29,7 @@ from socialauth.lib import oauthyahoo
 from socialauth.lib import oauthgoogle
 from socialauth.lib.facebook import get_user_info, get_facebook_signature, \
                             get_friends, get_friends_via_fql
+from socialauth.lib.linkedin import *
 
 from oauth import oauth
 from re import escape
@@ -42,9 +43,53 @@ def login_page(request):
     payload = {'fb_api_key':settings.FACEBOOK_API_KEY,}
     return render_to_response(request.device + '/socialauth/login_page.html', payload, RequestContext(request))
 
+def linkedin_login(request):
+    linkedin = LinkedIn(settings.LINKEDIN_API_KEY, settings.LINKEDIN_SECRET_KEY)
+    request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
+    request.session['request_token'] = request_token.to_string()
+    signin_url = linkedin.getAuthorizeUrl(request_token)
+    return HttpResponseRedirect(signin_url)
+
+def linkedin_login_done(request)
+    request_token = request.session.get('request_token', None)
+
+    # If there is no request_token for session
+    # Means we didn't redirect user to linkedin
+    if not request_token:
+        # Send them to the login page
+        return HttpResponseRedirect(reverse("socialauth_login_page"))
+
+    token = oauth.OAuthToken.from_string(request_token)
+
+    # make sure they match
+    if token.key != request.GET.get('oauth_token', 'no_token'):
+        del request.session['request_token']
+        # Give them an error, tokens do not match
+        return HttpResponseRedirect(reverse("socialauth_login_page"))
+
+    linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
+    verifier = request.GET.get('oauth_verifier', 'no_verifier')
+    access_token = linkedin.getAccessToken(request_token,verifier)
+    
+    request.session['access_token'] = access_token.to_string()
+    user = authenticate(access_token=access_token)
+    
+    # if user is authenticated then login user
+    if user:
+        login(request, user)
+    else:
+        # We were not able to authenticate user
+        # Redirect to login page
+        del request.session['access_token']
+        del request.session['request_token']
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
+
+    # authentication was successful, use is now logged in
+    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+
 def twitter_login(request):
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.fetch_request_token()  
+    request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))  
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)  
     return HttpResponseRedirect(signin_url)
@@ -55,9 +100,8 @@ def twitter_login_done(request):
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
-            # Redirect the user to the login page,
-            # So the user can click on the sign-in with twitter button
-            return HttpResponse("We didn't redirect you to twitter...")
+        # Redirect the user to the login page,
+        return HttpResponseRedirect(reverse("socialauth_login_page"))
     
     token = oauth.OAuthToken.from_string(request_token)
     
@@ -66,7 +110,7 @@ def twitter_login_done(request):
     if token.key != request.GET.get('oauth_token', 'no-token'):
             del request.session['request_token']
             # Redirect the user to the login page
-            return HttpResponse("Something wrong! Tokens do not match...")
+            return HttpResponseRedirect(reverse("socialauth_login_page"))
     
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)  
     access_token = twitter.fetch_access_token(token)
