@@ -50,7 +50,7 @@ def linkedin_login(request):
     signin_url = linkedin.getAuthorizeUrl(request_token)
     return HttpResponseRedirect(signin_url)
 
-def linkedin_login_done(request)
+def linkedin_login_done(request):
     request_token = request.session.get('request_token', None)
 
     # If there is no request_token for session
