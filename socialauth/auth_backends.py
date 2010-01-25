@@ -82,7 +82,7 @@ class LinkedInBackend:
     """LinkedInBackend for authentication
     """
     def authenticate(self, access_token):
-        linkedin = LinkedIn(settings.LINKEDIN_API_KEY, settings.LINKEDIN_SECRET_KEY)
+        linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
         api = LinkedInApi(linkedin)
         # get their profile
         

@@ -159,7 +159,7 @@ class ConnectionsApi(LinkedInApi):
                 Note: This should happen after the linkedin redirect.  verifier is passed
                 by LinkedIn back to your redirect page
 
-                li = LinkedIn(LINKEDIN_API_KEY, LINKEDIN_SECRET_KEY)
+                li = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
 
                 tokenObj = oauth.OAuthToken(requestTokenKey, requestTokenSecret)
                 access_token = li.getAccessToken(tokenObj, verifier)

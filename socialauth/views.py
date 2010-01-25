@@ -44,7 +44,7 @@ def login_page(request):
     return render_to_response(request.device + '/socialauth/login_page.html', payload, RequestContext(request))
 
 def linkedin_login(request):
-    linkedin = LinkedIn(settings.LINKEDIN_API_KEY, settings.LINKEDIN_SECRET_KEY)
+    linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
     request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
     request.session['request_token'] = request_token.to_string()
     signin_url = linkedin.getAuthorizeUrl(request_token)
