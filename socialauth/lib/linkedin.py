@@ -148,7 +148,7 @@ class ProfileApi(LinkedInApi):
                 person.profile_url = profurl
 
             except:
-                continue
+                pass
 
             return person
 
@@ -181,23 +181,22 @@ class ConnectionsApi(LinkedInApi):
                 people = []
 
                 for p in peopleDom:
-                        try:
-                                fn = p.getElementsByTagName('first-name')[0].firstChild.nodeValue
-                                ln = p.getElementsByTagName('last-name')[0].firstChild.nodeValue
-                                headline = p.getElementsByTagName('headline')[0].firstChild.nodeValue
-                                company = headline.split(' at ')[1]
-                                industry = p.getElementsByTagName('industry')[0].firstChild.nodeValue
-                                #location = p.getElementsByTagName('industry')[0].firstChild.nodeValue
-
-                                person = Person()
-                                person.firstname = fn
-                                person.lastname = ln
-                                person.headline = headline
-                                person.company = company
-                                person.industry = industry
-                                people.append(person)
-                        except:
-                                continue
+                    try:
+                        fn = p.getElementsByTagName('first-name')[0].firstChild.nodeValue
+                        ln = p.getElementsByTagName('last-name')[0].firstChild.nodeValue
+                        headline = p.getElementsByTagName('headline')[0].firstChild.nodeValue
+                        company = headline.split(' at ')[1]
+                        industry = p.getElementsByTagName('industry')[0].firstChild.nodeValue
+                        #location = p.getElementsByTagName('industry')[0].firstChild.nodeValue
+                        person = Person()
+                        person.firstname = fn
+                        person.lastname = ln
+                        person.headline = headline
+                        person.company = company
+                        person.industry = industry
+                        people.append(person)
+                    except:
+                        continue
                 return people
 
 class Person():
