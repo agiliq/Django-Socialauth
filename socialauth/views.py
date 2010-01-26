@@ -1,3 +1,5 @@
+import logging
+
 import urllib
 import urllib2
 from django.shortcuts import render_to_response
@@ -214,6 +216,7 @@ def facebook_login_done(request):
         del request.COOKIES[API_KEY + '_session_key']
         del request.COOKIES[API_KEY + '_user']
         # TODO: maybe the project has its own login page?
+        logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     login(request, user)

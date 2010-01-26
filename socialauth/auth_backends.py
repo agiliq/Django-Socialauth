@@ -176,6 +176,7 @@ class FacebookBackend:
     def authenticate(self, request):
 
         if not settings.FACEBOOK_API_KEY in request.COOKIES:
+            logging.debug("Could not find FACEBOOK_API_KEY in Cookies")
             return None
 
         facebook =  Facebook(settings.FACEBOOK_API_KEY,
