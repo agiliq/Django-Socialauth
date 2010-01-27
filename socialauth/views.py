@@ -207,10 +207,13 @@ def facebook_login(request):
 def facebook_login_done(request):
     API_KEY = settings.FACEBOOK_API_KEY
 
+    """
+    Facebook connect for mobile doesn't set these cookies
     if API_KEY not in request.COOKIES:
         logging.debug("SOCIALAUTH: Facebook API Key not in Cookies, perhaps cookies are disabled")
         logging.debug("SOCIALAUTH: Here are some cookies: " + str(request.COOKIES))
         return HttpResponseRedirect(reverse('socialauth_login_page'))
+    """
 
     user = authenticate(request = request)
 
@@ -222,6 +225,7 @@ def facebook_login_done(request):
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     login(request, user)
+    logging.debug("SOCIALAUTH: Successfully logged in with Facebook!")
     return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login_page(request):
