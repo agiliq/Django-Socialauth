@@ -15,8 +15,11 @@ __version__ = "0.1"
 
 
 from twitter import Api, User
+try:
+    import json as simplejson
+except:
+from django.utils import simplejson
 
-import simplejson
 from oauth import oauth
 
 
