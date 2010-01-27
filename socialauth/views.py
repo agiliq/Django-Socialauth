@@ -91,7 +91,7 @@ def linkedin_login_done(request):
 
 def twitter_login(request):
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))  
+    request_token = twitter.fetch_request_token()  
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)  
     return HttpResponseRedirect(signin_url)
