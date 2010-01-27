@@ -6,4 +6,4 @@ admin.site.register(AuthMeta)
 admin.site.register(OpenidProfile)
 admin.site.register(TwitterUserProfile)
 admin.site.register(FacebookUserProfile)
-
+admin.site.register(LinkedInUserProfile)
