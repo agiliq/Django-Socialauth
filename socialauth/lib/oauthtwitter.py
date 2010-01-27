@@ -18,7 +18,7 @@ from twitter import Api, User
 try:
     import json as simplejson
 except:
-from django.utils import simplejson
+    from django.utils import simplejson
 
 from oauth import oauth
 
