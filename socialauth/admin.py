@@ -1,4 +1,4 @@
-from socialauth.models import AuthMeta, OpenidProfile, TwitterUserProfile, FacebookUserProfile
+from socialauth.models import AuthMeta, OpenidProfile, TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile
 
 from django.contrib import admin
 
