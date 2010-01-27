@@ -222,7 +222,7 @@ def facebook_login_done(request):
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     login(request, user)
-    return HttpResponseRedirect(reverse('socialauth_signin_complete'))
+    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login_page(request):
     return render_to_response('openid/index.html', {}, RequestContext(request))
