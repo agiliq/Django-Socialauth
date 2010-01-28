@@ -183,7 +183,7 @@ def openid_done(request, provider=None):
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
 
-def facebook_login(request):
+def facebook_login(request, device="mobile"):
     """
     This is a facebook login page for devices
     that cannot use the FBconnect javascript
@@ -197,9 +197,9 @@ def facebook_login(request):
     # Cancel link must be a full URL
     params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page"))
 
-    if request.device == "mobile":
+    if device == "mobile":
         url = "http://m.facebook.com/tos.php?" + urllib.urlencode(params)
-    elif request.device == "touch":
+    elif device == "touch":
         url = "http://touch.facebook.com/tos.php?" + urllib.urlencode(params)
 
     return HttpResponseRedirect(url)
