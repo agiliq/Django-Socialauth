@@ -191,7 +191,7 @@ class FacebookBackend:
             profile = FacebookUserProfile.objects.get(facebook_uid = fb_user)
             return profile.user
         except FacebookUserProfile.DoesNotExist:
-            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic', 'current_location'])
+            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic_big', 'current_location', 'profile_url'])
             if not fb_data:
                 return None
             fb_data = fb_data[0]
@@ -205,7 +205,7 @@ class FacebookBackend:
             location = str(fb_data['current_location'])
             about_me = str(fb_data['about_me'])
             url = str(fb_data['profile_url'])
-            fb_profile = FacebookUserProfile(facebook_uid = fb_data['uid'], user = user, profile_image_url = fb_data['pic'], location=location, about_me=about_me, url=url)
+            fb_profile = FacebookUserProfile(facebook_uid = fb_data['uid'], user = user, profile_image_url = fb_data['pic_big'], location=location, about_me=about_me, url=url)
             fb_profile.save()
             auth_meta = AuthMeta(user=user, provider='Facebook').save()
             return user
