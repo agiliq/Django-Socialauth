@@ -106,7 +106,7 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
     
     if sreg:
         s = SRegRequest()        
-        for sarg in sreg.keys():
+        for sarg in sreg:
             if sarg.lower().lstrip() == "policy_url":
                 s.policy_url = sreg[sarg]
             else:
@@ -137,9 +137,11 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
         auth_request.addExtension(axr)
 
     redirect_url = auth_request.redirectURL(trust_root, redirect_to)
+    
     return HttpResponseRedirect(redirect_url)
 
 def complete(request, on_success=None, on_failure=None, failure_template='openid_consumer/failure.html'):
+    
     on_success = on_success or default_on_success
     on_failure = on_failure or default_on_failure
     
