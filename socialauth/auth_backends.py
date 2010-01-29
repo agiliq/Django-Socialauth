@@ -158,10 +158,10 @@ class TwitterBackend:
             user.save()
             userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             # userprofile.access_token = access_token.key
-            userprofile.url = twitter_user.url
-            userprofile.location = twitter_user.location
-            userprofile.description = twitter_user.description
-            userprofile.profile_image_url = twitter_user.profile_image_url
+            userprofile.url = userinfo.url
+            userprofile.location = userinfo.location
+            userprofile.description = userinfo.description
+            userprofile.profile_image_url = userinfo.profile_image_url
             userprofile.save()
             auth_meta = AuthMeta(user=user, provider='Twitter').save()
             return user
