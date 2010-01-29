@@ -56,6 +56,8 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
     trust_root = getattr(
         settings, 'OPENID_TRUST_ROOT', get_url_host(request) + '/'
     )
+    
+    
     # foo derbis.
     redirect_to = redirect_to or getattr(
         settings, 'OPENID_REDIRECT_TO',
@@ -103,8 +105,8 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
     sreg = getattr(settings, 'OPENID_SREG', False)
     
     if sreg:
-        s = SRegRequest()
-        for sarg in sreg:
+        s = SRegRequest()        
+        for sarg in sreg.keys():
             if sarg.lower().lstrip() == "policy_url":
                 s.policy_url = sreg[sarg]
             else:
