@@ -43,7 +43,7 @@ class OpenIdBackend:
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
                 valid_username = False
-                email =  '%s@example.openid.com'%(nickname)
+                email =  None #'%s@example.openid.com'%(nickname)
             else:
                 valid_username = True
             name_count = User.objects.filter(username__startswith = nickname).count()
@@ -99,7 +99,7 @@ class LinkedInBackend:
             temp_password = User.objects.make_random_password(length=12)
             user.set_password(temp_password)
             user.first_name, user.last_name = person.firstname, person.lastname
-            user.email = '%s@example.linkedin.com'%(person.id)
+            #user.email = '%s@example.linkedin.com'%(person.id)
             user.save()
             userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
             userprofile.access_token = access_token.key
@@ -154,7 +154,7 @@ class TwitterBackend:
             except:
                 first_name, last_name =  screen_name, ''
             user.first_name, user.last_name = first_name, last_name
-            user.email = '%s@example.twitter.com'%(userinfo.screen_name)
+            #user.email = '%s@example.twitter.com'%(userinfo.screen_name)
             user.save()
             userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             # userprofile.access_token = access_token.key
@@ -197,8 +197,8 @@ class FacebookBackend:
             fb_data = fb_data[0]
 
             username = 'FB:%s' % fb_data['uid']
-            user_email = '%s@example.facebook.com'%(fb_data['uid'])
-            user = User.objects.create(username = username, email=user_email)
+            #user_email = '%s@example.facebook.com'%(fb_data['uid'])
+            user = User.objects.create(username = username)
             user.first_name = fb_data['first_name']
             user.last_name = fb_data['last_name']
             user.save()
