@@ -3,7 +3,7 @@ from django.conf import settings
 from facebook import Facebook
 
 from socialauth.lib import oauthtwitter
-from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, AuthMeta
+from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
 from socialauth.lib.facebook import get_user_info, get_facebook_signature
 from socialauth.lib.linkedin import *
 
@@ -81,34 +81,33 @@ class OpenIdBackend:
 class LinkedInBackend:
     """LinkedInBackend for authentication
     """
-    def authenticate(self, access_token):
+    def authenticate(self, linkedin_access_token):
         linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
-        api = LinkedInApi(linkedin)
         # get their profile
         
-        profile = ProfileApi(api).getMyProfile(access_token = access_token)
+        profile = ProfileApi(linkedin).getMyProfile(access_token = linkedin_access_token)
 
         try:
-            user_profile = LinkedInProfile.objects.get(linkedin_uid = profile.id)
+            user_profile = LinkedInUserProfile.objects.get(linkedin_uid = profile.id)
             user = user_profile.user
             return user
-        except LinkedInProfile.DoesNotExist:
+        except LinkedInUserProfile.DoesNotExist:
             # Create a new user
             username = 'LI:%s' % profile.id
             user = User(username =  username)
             temp_password = User.objects.make_random_password(length=12)
             user.set_password(temp_password)
-            user.first_name, user.last_name = person.firstname, person.lastname
+            user.first_name, user.last_name = profile.firstname, profile.lastname
             #user.email = '%s@example.linkedin.com'%(person.id)
             user.save()
             userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
-            userprofile.access_token = access_token.key
-            userprofile.headline = person.headline
-            userprofile.company = person.company
-            userprofile.location = person.location
-            userprofile.industry = person.industry
-            userprofile.profile_image_url = person.picture_url
-            userprofile.url = person.profile_url
+            #userprofile.access_token = linkedin_access_token.key
+            userprofile.headline = profile.headline
+            userprofile.company = profile.company
+            userprofile.location = profile.location
+            userprofile.industry = profile.industry
+            userprofile.profile_image_url = profile.picture_url
+            userprofile.url = profile.profile_url
             userprofile.save()
             auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
             return user
@@ -122,10 +121,10 @@ class LinkedInBackend:
 class TwitterBackend:
     """TwitterBackend for authentication
     """
-    def authenticate(self, access_token):
+    def authenticate(self, twitter_access_token):
         '''authenticates the token by requesting user information from twitter
         '''
-        twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, access_token)
+        twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, twitter_access_token)
         try:
             userinfo = twitter.GetUserInfo()
         except:

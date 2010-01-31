@@ -27,8 +27,8 @@ class TwitterOAuthClient(oauth.OAuthClient):
         self.access_token_url = access_token_url
         self.authorization_url = authorization_url
 
-    def fetch_request_token(self):
-        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, http_url=self.request_token_url)
+    def fetch_request_token(self, callback):
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, callback = callback, http_url=self.request_token_url)
         oauth_request.sign_request(self.signature_method, self.consumer, None)
         params = oauth_request.parameters
         data = urllib.urlencode(params)
@@ -44,8 +44,8 @@ class TwitterOAuthClient(oauth.OAuthClient):
         full_url='%s?%s'%(self.authorization_url, data)
         return full_url
 
-    def fetch_access_token(self, token):
-        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=self.access_token_url)
+    def fetch_access_token(self, token, verifier):
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, verifier=verifier, http_url=self.access_token_url)
         oauth_request.sign_request(self.signature_method, self.consumer, token)
         params = oauth_request.parameters
         data = urllib.urlencode(params)

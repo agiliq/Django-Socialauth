@@ -17,7 +17,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile, TwitterUserProfile
+from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile, TwitterUserProfile, LinkedInUserProfile
 from socialauth.forms import EditProfileForm
 
 """
@@ -48,12 +48,12 @@ def login_page(request):
 def linkedin_login(request):
     linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
     request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
-    request.session['request_token'] = request_token.to_string()
+    request.session['linkedin_request_token'] = request_token
     signin_url = linkedin.getAuthorizeUrl(request_token)
     return HttpResponseRedirect(signin_url)
 
 def linkedin_login_done(request):
-    request_token = request.session.get('request_token', None)
+    request_token = request.session.get('linkedin_request_token', None)
 
     # If there is no request_token for session
     # Means we didn't redirect user to linkedin
@@ -61,20 +61,12 @@ def linkedin_login_done(request):
         # Send them to the login page
         return HttpResponseRedirect(reverse("socialauth_login_page"))
 
-    token = oauth.OAuthToken.from_string(request_token)
-
-    # make sure they match
-    if token.key != request.GET.get('oauth_token', 'no_token'):
-        del request.session['request_token']
-        # Give them an error, tokens do not match
-        return HttpResponseRedirect(reverse("socialauth_login_page"))
-
     linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
-    verifier = request.GET.get('oauth_verifier', 'no_verifier')
+    verifier = request.GET.get('oauth_verifier', None)
     access_token = linkedin.getAccessToken(request_token,verifier)
     
-    request.session['access_token'] = access_token.to_string()
-    user = authenticate(access_token=access_token)
+    request.session['access_token'] = access_token
+    user = authenticate(linkedin_access_token=access_token)
     
     # if user is authenticated then login user
     if user:
@@ -91,14 +83,20 @@ def linkedin_login_done(request):
 
 def twitter_login(request):
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.fetch_request_token()  
+    request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))  
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)  
     return HttpResponseRedirect(signin_url)
 
 def twitter_login_done(request):
     request_token = request.session.get('request_token', None)
-    
+    verifier = request.GET.get('oauth_verifier', None)
+    denied = request.GET.get('denied', None)
+    # If we've been denied, put them back to the signin page
+    # They probably meant to sign in with facebook >:D
+    if denied:
+        return HttpResponseRedirect(reverse("socialauth_login_page"))
+
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
@@ -115,10 +113,10 @@ def twitter_login_done(request):
             return HttpResponseRedirect(reverse("socialauth_login_page"))
     
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)  
-    access_token = twitter.fetch_access_token(token)
+    access_token = twitter.fetch_access_token(token, verifier)
     
     request.session['access_token'] = access_token.to_string()
-    user = authenticate(access_token=access_token)
+    user = authenticate(twitter_access_token=access_token)
     
     # if user is authenticated then login user
     if user:

@@ -93,8 +93,7 @@ class LinkedInApi():
         def __init__(self, linkedin):
                 self.linkedin = linkedin
         def doApiRequest(self, url, access_token):
-                oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.linkedin.consumer,
-                                token=access_token, http_url=url)
+                oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.linkedin.consumer, token=access_token, http_url=url)
                 oauth_request.sign_request(self.linkedin.sig_method, self.linkedin.consumer, access_token)
 
                 self.linkedin.connection.request(oauth_request.http_method, url,
@@ -124,6 +123,8 @@ class ProfileApi(LinkedInApi):
 
             p = personDom[0]
 
+            fn=ln=picurl=headline=company=industry=profurl=""
+
             try:
                 id = p.getElementsByTagName('id')[0].firstChild.nodeValue
                 fn = p.getElementsByTagName('first-name')[0].firstChild.nodeValue
@@ -136,19 +137,18 @@ class ProfileApi(LinkedInApi):
                 industry = p.getElementsByTagName('industry')[0].firstChild.nodeValue
                 #location = p.getElementsByTagName('industry')[0].firstChild.nodeValue
                 profurl = p.getElementsByTagName('url')[0].firstChild.nodeValue
-
-                person = Person()
-                person.id = id
-                person.firstname = fn
-                person.lastname = ln
-                person.headline = headline
-                person.company = company
-                person.industry = industry
-                person.picture_url = picurl
-                person.profile_url = profurl
-
             except:
                 pass
+
+            person = Person()
+            person.id = id
+            person.firstname = fn
+            person.lastname = ln
+            person.headline = headline
+            person.company = company
+            person.industry = industry
+            person.picture_url = picurl
+            person.profile_url = profurl
 
             return person
 
