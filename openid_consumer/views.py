@@ -127,15 +127,19 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
             elif parg.lower().strip() == 'max_auth_age':
                 p.max_auth_age = pape[parg]
         auth_request.addExtension(p)
+    
+    PROVIDER_TO_SETTING_MAP = getattr(settings, 'PROVIDER_TO_SETTING_MAP',{})
+    AX_SETTING = PROVIDER_TO_SETTING_MAP.get(request.session.get('openid_provider',''),'OPENID_AX')
 
-    ax = getattr(settings, 'OPENID_AX', [])
-	
+
+    ax = getattr(settings, AX_SETTING, [])
+    
     if ax:
         axr = AXFetchRequest()
         for i in ax:
-            axr.add(AttrInfo(i['type_uri'], i['count'], i['required'], i['alias']))
+            axr.add(AttrInfo(i['type_uri'], i['count'], required=i['required'], alias=i['alias']))
         auth_request.addExtension(axr)
-
+    
     redirect_url = auth_request.redirectURL(trust_root, redirect_to)
     
     return HttpResponseRedirect(redirect_url)

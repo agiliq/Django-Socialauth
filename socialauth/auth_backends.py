@@ -24,6 +24,10 @@ FACEBOOK_URL = getattr(settings, 'FACEBOOK_URL', 'http://api.facebook.com/restse
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
+# OpenId setting map
+
+PROVIDER_TO_SETTING_MAP = getattr(settings,'PROVIDER_TO_SETTING_MAP',{})
+
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider):
         try:
@@ -31,13 +35,22 @@ class OpenIdBackend:
             return assoc.user
         except UserAssociation.DoesNotExist:
             #fetch if openid provider provides any simple registration fields
+
+            
             nickname = None
             email = None
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.get('email')
+                AX_SETTING = PROVIDER_TO_SETTING_MAP.get(provider,'OPENID_AX')
+                email_field = 'email'
+                AX_REG = getattr(settings,AX_SETTING,[])
+                for ax in AX_REG:
+                    if ax.get('alias','')=='email':
+                        email_field = ax.get('type_uri')
+                import pdb;pdb.set_trace()
+                email = request.openid.ax.get(email_field)
                 nickname = request.openid.ax.get('nickname')
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
@@ -191,11 +204,11 @@ class FacebookBackend:
             profile = FacebookUserProfile.objects.get(facebook_uid = fb_user)
             return profile.user
         except FacebookUserProfile.DoesNotExist:
-            fb_data = facebook.users.getInfo([fb_user], ['uid', 'first_name', 'last_name', 'pic_small', 'current_location'])
+            fb_data = facebook.users.getInfo([fb_user], ['uid', 'first_name', 'last_name', 'pic_small', 'current_location','email'])
             if not fb_data:
                 return None
             fb_data = fb_data[0]
-
+            
             username = 'FB:%s' % fb_data['uid']
             user_email = '%s@example.facebook.com'%(fb_data['uid'])
             user = User.objects.create(username = username, email=user_email)
