@@ -206,6 +206,8 @@ def facebook_login(request):
     elif device == "touch":
         params["connect_display"] = "touch"
         url = "http://www.facebook.com/login.php?" + urllib.urlencode(params)
+    else:
+        url = "http://facebook.com/login.php?"+urllib.urlencode(params)
 
     return HttpResponseRedirect(url)
     
