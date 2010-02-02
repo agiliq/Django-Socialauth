@@ -29,29 +29,32 @@ LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 PROVIDER_TO_SETTING_MAP = getattr(settings,'PROVIDER_TO_SETTING_MAP',{})
 
 class OpenIdBackend:
+    
+
     def authenticate(self, openid_key, request, provider):
         try:
             assoc = UserAssociation.objects.get(openid_key = openid_key)
             return assoc.user
         except UserAssociation.DoesNotExist:
             #fetch if openid provider provides any simple registration fields
-
-            
             nickname = None
             email = None
+            firstname = None
+            lastname = None
+
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
             elif request.openid and request.openid.ax:
-                AX_SETTING = PROVIDER_TO_SETTING_MAP.get(provider,'OPENID_AX')
-                email_field = 'email'
-                AX_REG = getattr(settings,AX_SETTING,[])
-                for ax in AX_REG:
-                    if ax.get('alias','')=='email':
-                        email_field = ax.get('type_uri')
-                import pdb;pdb.set_trace()
-                email = request.openid.ax.get(email_field)
-                nickname = request.openid.ax.get('nickname')
+                if provider=='Google':
+                    ax_dict = self.GooglesAX(request.openid)
+                    firstname = ax_dict.get('firstname',None)
+                    lastname = ax_dict.get('lastname',None)
+                    email = ax_dict.get('email',None)
+                    nickname = email.split('@')[0]
+                else:
+                    email = request.openid.ax.get('email')
+                    nickname = request.openid.ax.get('nickname')
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
@@ -65,6 +68,9 @@ class OpenIdBackend:
                 user = User.objects.create_user(username,email)
             else:
                 user = User.objects.create_user(nickname,email)
+        
+            user.first_name = firstname
+            user.last_name = lastname
             user.save()
     
             #create openid association
@@ -83,7 +89,15 @@ class OpenIdBackend:
             auth_meta = AuthMeta(user = user, provider = provider)
             auth_meta.save()
             return user
-    
+        
+    def GooglesAX(self,openid_response):
+        email = openid_response.ax.getSingle('http://axschema.org/contact/email')
+        firstname = openid_response.ax.getSingle('http://axschema.org/namePerson/first')
+        lastname = openid_response.ax.getSingle('http://axschema.org/namePerson/last')
+        country = openid_response.ax.getSingle('http://axschema.org/contact/country/home')
+        language = openid_response.ax.getSingle('http://axschema.org/pref/language')
+        return locals()
+  
     def get_user(self, user_id):
         try:
             user = User.objects.get(pk = user_id)
