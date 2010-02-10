@@ -9,7 +9,7 @@ class AuthMeta(models.Model):
         return '%s - %s' % (self.user, self.provider)
     
     user = models.OneToOneField(User)
-    provider = models.CharField(max_length = 30)
+    provider = models.CharField(max_length = 200)
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
 
