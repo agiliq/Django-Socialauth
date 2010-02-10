@@ -49,9 +49,9 @@ class OpenIdBackend:
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
-                user = User.objects.create_user(username,email)
+                user = User.objects.create_user(username,email or '')
             else:
-                user = User.objects.create_user(nickname,email)
+                user = User.objects.create_user(nickname,email or '')
             user.save()
     
             #create openid association

@@ -153,7 +153,7 @@ def complete(request, on_success=None, on_failure=None, failure_template='openid
     # JanRain library raises a warning if passed unicode objects as the keys, 
     # so we convert to bytestrings before passing to the library
     query_dict = dict([
-        (k.encode('utf8'), v.encode('utf8')) for k, v in request.GET.items()
+        (k.encode('utf8'), v.encode('utf8')) for k, v in request.REQUEST.items()
     ])
 
     url = get_url_host(request) + request.path

@@ -7,8 +7,9 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^accounts/', include('socialauth.urls')),
     (r'^admin/', admin.site.urls), 
-    (r'^$', leave_comment), 
-
+    (r'^$', 'blog.views.index'),
+    (r'node/(?P<post_id>\d+)/$', 'blog.views.post'),
+    (r'^comment/$', leave_comment), 
 )
 from django.conf import settings
 
