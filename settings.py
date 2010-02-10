@@ -82,7 +82,6 @@ INSTALLED_APPS = (
     'socialauth',
     'openid_consumer',
     'commentor',
-    'blog'
 )
 
 from localsettings import *
