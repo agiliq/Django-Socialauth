@@ -1,0 +1,6 @@
+
+{% for post in posts %}
+<h2><a href="/node/{{post.id}}">    {{ post.title }}  </a></h2>
+<p>     {{post.datetime}} </p>
+<p>     {{post.text}}     </p>
+{% endfor %}

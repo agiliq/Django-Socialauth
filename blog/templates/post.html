@@ -1,0 +1,16 @@
+
+<h2><a href="/node/{{post.id}}/">    {{ post.title }}  </a></h2>
+<p>     {{post.datetime}} </p>
+<p>     {{post.text}}     </p>
+<p> Rating this: </p>
+<p> post.rating.score </p>
+
+<p>Comments:</p>
+{% for comment in comments %}
+<p> {{ comment.text }} </p>
+{% endfor %}
+
+<form action='.' method="POST">
+{{comment_form.as_p}}
+<input type="submit" value="Post Comment" />
+</form>
