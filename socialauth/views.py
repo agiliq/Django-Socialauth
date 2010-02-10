@@ -253,7 +253,7 @@ def editprofile(request):
                 user.authmeta.save()
             except AuthMeta.DoesNotExist:
                 pass
-            if user.openidprofile_set.all().count():
+            if hasattr(user,'openidprofile_set') and user.openidprofile_set.count():
                 openid_profile = user.openidprofile_set.all()[0]
                 openid_profile.is_valid_username = True
                 openid_profile.save()
