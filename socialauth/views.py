@@ -162,7 +162,7 @@ def openid_done(request, provider=None):
     """
     if not provider:
         provider = request.session.get('openid_provider', '')
-    if  request.openid:
+    if hasattr(request,'openid') and request.openid:
         #check for already existing associations
         openid_key = str(request.openid)
         #authenticate and login
