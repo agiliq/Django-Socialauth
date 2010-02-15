@@ -42,8 +42,7 @@ from cgi import parse_qs
 
 
 def login_page(request):
-    payload = {'fb_api_key':settings.FACEBOOK_API_KEY,}
-    return render_to_response('socialauth/login_page.html', payload, RequestContext(request))
+    return render_to_response('socialauth/login_page.html', context_instance=RequestContext(request))
 
 def linkedin_login(request):
     linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
@@ -236,11 +235,11 @@ def facebook_login_done(request):
     return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login_page(request):
-    return render_to_response('openid/index.html', {}, RequestContext(request))
-    
+    return render_to_response('openid/index.html', context_instance=RequestContext(request))
+
+@login_required
 def signin_complete(request):
-    payload = {}
-    return render_to_response('socialauth/signin_complete.html', payload, RequestContext(request))
+    return render_to_response('socialauth/signin_complete.html', context_instance=RequestContext(request))
 
 @login_required
 def editprofile(request):

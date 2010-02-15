@@ -10,7 +10,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'data.db'             # Or path to database file if using sqlite3.
+DATABASE_NAME = 'dev.db'              # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -65,6 +65,10 @@ MIDDLEWARE_CLASSES = (
     #'socialauth.middleware.FacebookConnectMiddleware'
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "socialauth.context_processors.facebook_api_key",
+)
+
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
@@ -84,7 +88,14 @@ INSTALLED_APPS = (
     'commentor',
 )
 
-from localsettings import *
+LOGIN_REDIRECT_URL = '/login/done/'
+
+LOGOUT_REDIRECT_URL = '/'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
 
 import os
 MEDIA_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'media'))
