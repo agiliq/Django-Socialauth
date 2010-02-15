@@ -1,2 +1,24 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% block head %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+{% block html_declare %}
+<html lang="en">
+{% endblock %}
+{% endblock %}
 
+{% block content %}
+<head>
+    <title>{% if user.is_authenticated %}Hello {{ user }}{% else %}Please login{% endif %}</title>
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    {% block extra_body %}
+    {% endblock %}
+    
+    {% block main_content %}
+    {% endblock %}
+    <!-- Insert your content here -->
+</body>
+</html>
+{% endblock %}
