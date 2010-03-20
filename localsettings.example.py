@@ -4,14 +4,15 @@ OPENID_SREG = {"requred": "nickname, email",
                "optional":"postcode, country",
                "policy_url": ""}
 
-OPENID_AX = [{"type_uri": "email",
+#example should be something more like the real thing, i think
+OPENID_AX = [{"type_uri": "http://axschema.org/contact/email",
               "count": 1,
-              "required": False,
+              "required": True,
               "alias": "email"},
-             {"type_uri": "fullname",
+             {"type_uri": "http://axschema.org/schema/fullname",
               "count":1 ,
               "required": False,
-              "alias": "fullname"}]
+              "alias": "fname"}]
 
 TWITTER_CONSUMER_KEY = ''
 TWITTER_CONSUMER_SECRET = ''
