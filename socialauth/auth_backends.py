@@ -37,8 +37,11 @@ class OpenIdBackend:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.get('email')
-                nickname = request.openid.ax.get('nickname')
+                email = request.openid.ax.get('http://axschema.org/contact/email')[0]
+                try:
+                      nickname = request.openid.ax.get('nickname')#should be replaced by correct schema
+                except:
+                      pass
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
@@ -47,12 +50,11 @@ class OpenIdBackend:
             else:
                 valid_username = True
             name_count = User.objects.filter(username__startswith = nickname).count()
-            if name_count:
-                username = '%s%s'%(nickname, name_count + 1)
-                user = User.objects.create_user(username,email or '')
-            else:
+            try:
+                user = User.objects.get(email=email)
+            except:
                 user = User.objects.create_user(nickname,email or '')
-            user.save()
+                user.save()
     
             #create openid association
             assoc = UserAssociation()
