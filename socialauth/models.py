@@ -8,7 +8,7 @@ class AuthMeta(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.user, self.provider)
     
-    user = models.OneToOneField(User)
+    user = models.ForeignKey(User)
     provider = models.CharField(max_length = 200)
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
