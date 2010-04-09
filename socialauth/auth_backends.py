@@ -153,14 +153,11 @@ class TwitterBackend:
             except:
                 first_name, last_name =  screen_name, ''
             user.first_name, user.last_name = first_name, last_name
+            user.email = screen_name + "@socialauth"
             #user.email = '%s@example.twitter.com'%(userinfo.screen_name)
             user.save()
             userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
             # userprofile.access_token = access_token.key
-            userprofile.url = userinfo.url
-            userprofile.location = userinfo.location
-            userprofile.description = userinfo.description
-            userprofile.profile_image_url = userinfo.profile_image_url
             userprofile.save()
             auth_meta = AuthMeta(user=user, provider='Twitter').save()
             return user
@@ -190,21 +187,18 @@ class FacebookBackend:
             profile = FacebookUserProfile.objects.get(facebook_uid = str(fb_user))
             return profile.user
         except FacebookUserProfile.DoesNotExist:
-            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic_big', 'pic', 'pic_small', 'current_location', 'profile_url'])
+            fb_data = facebook.users.getInfo([fb_user], ['uid', 'first_name', 'last_name'])
             if not fb_data:
                 return None
             fb_data = fb_data[0]
-
             username = 'FB:%s' % fb_data['uid']
             #user_email = '%s@example.facebook.com'%(fb_data['uid'])
             user = User.objects.create(username = username)
             user.first_name = fb_data['first_name']
             user.last_name = fb_data['last_name']
+            user.email = username + "@socialauth"
             user.save()
-            location = str(fb_data['current_location'])
-            about_me = str(fb_data['about_me'])
-            url = str(fb_data['profile_url'])
-            fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user, profile_image_url = fb_data['pic'], profile_image_url_big = fb_data['pic_big'], profile_image_url_small = fb_data['pic_small'], location=location, about_me=about_me, url=url)
+            fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user)
             fb_profile.save()
             auth_meta = AuthMeta(user=user, provider='Facebook').save()
             return user

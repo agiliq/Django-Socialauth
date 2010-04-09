@@ -51,6 +51,9 @@ def linkedin_login(request):
     signin_url = linkedin.getAuthorizeUrl(request_token)
     return HttpResponseRedirect(signin_url)
 
+def facebook_xd_receiver(request):
+    return render_to_response('socialauth/xd_reciever.htm')
+
 def linkedin_login_done(request):
     request_token = request.session.get('linkedin_request_token', None)
 

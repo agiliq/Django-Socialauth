@@ -56,10 +56,6 @@ class TwitterUserProfile(models.Model):
     
     user = models.ForeignKey(User, related_name='twitter_profiles')
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
-    profile_image_url = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    description = models.CharField(max_length=160, blank=True, null=True)
 
     def __str__(self):
             return "%s's profile" % self.user
@@ -72,10 +68,4 @@ class FacebookUserProfile(models.Model):
     facebook_uid = models.CharField(max_length = 20, unique = True, db_index = True)
     
     user = models.ForeignKey(User, related_name='facebook_profiles')
-    profile_image_url = models.URLField(blank=True, null=True)
-    profile_image_url_big = models.URLField(blank=True, null=True)
-    profile_image_url_small = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    about_me = models.CharField(max_length=160, blank=True, null=True)
 
