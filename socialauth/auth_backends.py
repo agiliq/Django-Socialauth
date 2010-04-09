@@ -138,12 +138,8 @@ class TwitterBackend:
             user = user_profile.user
             return user
         except TwitterUserProfile.DoesNotExist:
-            #Create new user
-            same_name_count = User.objects.filter(username__startswith = screen_name).count()
-            if same_name_count:
-                username = '%s%s' % (screen_name, same_name_count + 1)
-            else:
-                username = screen_name
+            # Create new user
+            username = "TW:{0}".format(screen_name)
             user = User(username =  username)
             temp_password = User.objects.make_random_password(length=12)
             user.set_password(temp_password)

@@ -175,9 +175,8 @@ def openid_done(request, provider=None):
             if 'openid_next' in request.session :
                 openid_next = request.session.get('openid_next')
                 if len(openid_next.strip()) >  0 :
-                    return HttpResponseRedirect(openid_next)    
-            redirect_url = reverse('socialauth_editprofile')
-            return HttpResponseRedirect(redirect_url)
+                    return HttpResponseRedirect(openid_next)
+            return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
         else:
             return HttpResponseRedirect(settings.LOGIN_URL)
     else:
