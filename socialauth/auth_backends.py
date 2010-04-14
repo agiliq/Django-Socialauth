@@ -101,13 +101,6 @@ class LinkedInBackend:
             #user.email = '%s@example.linkedin.com'%(person.id)
             user.save()
             userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
-            #userprofile.access_token = linkedin_access_token.key
-            userprofile.headline = profile.headline
-            userprofile.company = profile.company
-            userprofile.location = profile.location
-            userprofile.industry = profile.industry
-            userprofile.profile_image_url = profile.picture_url
-            userprofile.url = profile.profile_url
             userprofile.save()
             auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
             return user

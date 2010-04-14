@@ -37,13 +37,6 @@ class LinkedInUserProfile(models.Model):
     linkedin_uid = models.CharField(max_length = 50, unique = True, db_index=True)
 
     user = models.ForeignKey(User, related_name='linkedin_profiles')
-    headline = models.CharField(max_length=120, blank=True, null=True)
-    company = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
-    industry = models.CharField(max_length=255, blank=True, null=True)
-    profile_image_url = models.URLField(blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
 
     def __str__(self):
             return "%s's profile" % self.user
@@ -55,7 +48,6 @@ class TwitterUserProfile(models.Model):
     screen_name = models.CharField(max_length = 200, unique = True, db_index = True)
     
     user = models.ForeignKey(User, related_name='twitter_profiles')
-    access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
 
     def __str__(self):
             return "%s's profile" % self.user
