@@ -6,7 +6,7 @@ from django.conf import settings
 
 #Login Views
 urlpatterns = patterns('socialauth.views',
-    url(r'^facebook_login/xd_receiver.htm$', direct_to_template, {'template':'socialauth/xd_receiver.htm'}, name='socialauth_xd_receiver'),
+    url(r'^facebook_login/xd_receiver\.htm$', direct_to_template, {'template':'socialauth/xd_receiver.htm'}, name='socialauth_xd_receiver'),
     url(r'^facebook_login/$', 'facebook_login', name='socialauth_facebook_login'),
     url(r'^facebook_login/done/$', 'facebook_login_done', name='socialauth_facebook_login_done'),
     url(r'^login/$', 'login_page', name='socialauth_login_page'),

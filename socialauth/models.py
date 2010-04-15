@@ -10,6 +10,8 @@ class AuthMeta(models.Model):
     
     user = models.ForeignKey(User)
     provider = models.CharField(max_length = 200)
+    provider_model = models.CharField(max_length=40)
+    provider_id = models.IntegerField()
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
 
