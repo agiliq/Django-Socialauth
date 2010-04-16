@@ -68,7 +68,7 @@ def linkedin_login_done(request):
     access_token = linkedin.getAccessToken(request_token,verifier)
     
     request.session['access_token'] = access_token
-    if request.user and request.user.is_authenticated:
+    if request.user and request.user.is_authenticated():
         res = authenticate(linkedin_access_token=access_token, user=request.user)
         if res:
             return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
@@ -126,7 +126,7 @@ def twitter_login_done(request):
     
     request.session['access_token'] = access_token.to_string()
     
-    if request.user and request.user.is_authenticated:
+    if request.user and request.user.is_authenticated():
         res = authenticate(twitter_access_token=access_token, user=request.user)
         if res:
             return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
@@ -183,7 +183,7 @@ def openid_done(request, provider=None):
     if hasattr(request,'openid') and request.openid:
         #check for already existing associations
         openid_key = str(request.openid)
-        if request.user and request.user.is_authenticated:
+        if request.user and request.user.is_authenticated():
             res = authenticate(openid_key=openid_key, request=request, provider = provider, user=request.user)
             if res:
                 return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
@@ -244,7 +244,7 @@ def facebook_login_done(request):
         logging.debug("SOCIALAUTH: Here are some cookies: " + str(request.COOKIES))
         return HttpResponseRedirect(reverse('socialauth_login_page'))
     """
-    if request.user and request.user.is_authenticated:
+    if request.user and request.user.is_authenticated():
         res = authenticate(request=request, user=request.user)
         if res:
             return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
