@@ -95,8 +95,6 @@ class LinkedInBackend:
             # Create a new user
             username = 'LI:%s' % profile.id
             user = User(username =  username)
-            temp_password = User.objects.make_random_password(length=12)
-            user.set_password(temp_password)
             user.first_name, user.last_name = profile.firstname, profile.lastname
             #user.email = '%s@example.linkedin.com'%(person.id)
             user.save()
@@ -145,8 +143,6 @@ class TwitterBackend:
             else:
                 username = screen_name
             user = User(username =  username)
-            temp_password = User.objects.make_random_password(length=12)
-            user.set_password(temp_password)
             name_data = userinfo.name.split()
             try:
                 first_name, last_name = name_data[0], ' '.join(name_data[1:])
