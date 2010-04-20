@@ -209,8 +209,8 @@ class FacebookBackend:
                   user.first_name = fb_data['first_name']
                   user.last_name = fb_data['last_name']
                   user.save()
-                  location = str(fb_data['current_location'])
-                  about_me = str(fb_data['about_me'])
+                  location = unicode(fb_data['current_location'])
+                  about_me = unicode(fb_data['about_me'])
                   url = str(fb_data['profile_url'])
                   fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user, profile_image_url = fb_data['pic'], profile_image_url_big = fb_data['pic_big'], profile_image_url_small = fb_data['pic_small'], location=location, about_me=about_me, url=url)
                   fb_profile.save()
