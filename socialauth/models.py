@@ -57,7 +57,7 @@ class TwitterUserProfile(models.Model):
     user = models.ForeignKey(User, related_name='twitter_profiles')
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     description = models.CharField(max_length=160, blank=True, null=True)
 
@@ -75,7 +75,7 @@ class FacebookUserProfile(models.Model):
     profile_image_url = models.URLField(blank=True, null=True)
     profile_image_url_big = models.URLField(blank=True, null=True)
     profile_image_url_small = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     about_me = models.CharField(max_length=160, blank=True, null=True)
 
