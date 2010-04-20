@@ -39,7 +39,7 @@ class LinkedInUserProfile(models.Model):
     user = models.ForeignKey(User, related_name='linkedin_profiles')
     headline = models.CharField(max_length=120, blank=True, null=True)
     company = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     industry = models.CharField(max_length=255, blank=True, null=True)
     profile_image_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
