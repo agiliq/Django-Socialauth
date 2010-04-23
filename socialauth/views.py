@@ -39,7 +39,19 @@ import random
 from datetime import datetime
 from cgi import parse_qs
 
+LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
+LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
+ADD_LOGIN_REDIRECT_URL = getattr(settings, 'ADD_LOGIN_REDIRECT_URL', '')
+LOGIN_REDIRECT_URL = getattr(settings, 'LOGIN_REDIRECT_URL', '')
+LOGIN_URL = getattr(settings, 'LOGIN_URL', '')
+
+TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
+TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
+
+FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
+FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
+FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 
 def login_page(request):
     return render_to_response('socialauth/login_page.html', context_instance=RequestContext(request))
@@ -48,7 +60,7 @@ def facebook_xd_receiver(request):
     return render_to_response('socialauth/xd_reciever.htm')
 
 def linkedin_login(request):
-    linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
+    linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
     request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
     request.session['linkedin_request_token'] = request_token
     signin_url = linkedin.getAuthorizeUrl(request_token)
@@ -63,7 +75,7 @@ def linkedin_login_done(request):
         # Send them to the login page
         return HttpResponseRedirect(reverse("socialauth_login_page"))
 
-    linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
+    linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
     verifier = request.GET.get('oauth_verifier', None)
     access_token = linkedin.getAccessToken(request_token,verifier)
     
@@ -71,9 +83,9 @@ def linkedin_login_done(request):
     if request.user and request.user.is_authenticated():
         res = authenticate(linkedin_access_token=access_token, user=request.user)
         if res:
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=true')
         else:
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=false')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
     else:
         user = authenticate(linkedin_access_token=access_token)
     
@@ -88,10 +100,10 @@ def linkedin_login_done(request):
             return HttpResponseRedirect(reverse('socialauth_login_page'))
 
         # authentication was successful, use is now logged in
-        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def twitter_login(request):
-    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+    twitter = oauthtwitter.TwitterOAuthClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
     request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))  
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)
@@ -121,7 +133,7 @@ def twitter_login_done(request):
             # Redirect the user to the login page
             return HttpResponseRedirect(reverse("socialauth_login_page"))
     
-    twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)  
+    twitter = oauthtwitter.TwitterOAuthClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)  
     access_token = twitter.fetch_access_token(token, verifier)
     
     request.session['access_token'] = access_token.to_string()
@@ -129,9 +141,9 @@ def twitter_login_done(request):
     if request.user and request.user.is_authenticated():
         res = authenticate(twitter_access_token=access_token, user=request.user)
         if res:
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=true')
         else:
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=false')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
     else:
         user = authenticate(twitter_access_token=access_token)
     
@@ -146,7 +158,7 @@ def twitter_login_done(request):
             return HttpResponseRedirect(reverse('socialauth_login_page'))
 
         # authentication was successful, use is now logged in
-        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def openid_login(request):
     if 'openid_identifier' in request.GET:
@@ -186,9 +198,9 @@ def openid_done(request, provider=None):
         if request.user and request.user.is_authenticated():
             res = authenticate(openid_key=openid_key, request=request, provider = provider, user=request.user)
             if res:
-                return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
+                return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=true')
             else:
-                return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=false')
+                return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
         else:
             #authenticate and login
             user = authenticate(openid_key=openid_key, request=request, provider = provider)
@@ -198,17 +210,15 @@ def openid_done(request, provider=None):
                     openid_next = request.session.get('openid_next')
                     if len(openid_next.strip()) >  0 :
                         return HttpResponseRedirect(openid_next)
-                return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+                return HttpResponseRedirect(LOGIN_REDIRECT_URL)
             else:
-                return HttpResponseRedirect(settings.LOGIN_URL)
+                return HttpResponseRedirect(LOGIN_URL)
     else:
-        return HttpResponseRedirect(settings.LOGIN_URL)
+        return HttpResponseRedirect(LOGIN_URL)
 
 def facebook_login(request):
     """
-    This is a facebook login page for devices
-    that cannot use the FBconnect javascript
-    e.g. mobiles, iPhones
+    Facebook login page
     """
     if request.REQUEST.get("device"):
         device = request.REQUEST.get("device")
@@ -216,56 +226,39 @@ def facebook_login(request):
         device = "mobile"
 
     params = {}
-    params["api_key"] = settings.FACEBOOK_API_KEY
-    params["v"] = "1.0"
-    params["next"] = reverse("socialauth_facebook_login_done")[1:] # remove leading slash
-    params["canvas"] = "0"
-    params["fbconnect"] = "1"
-    # Cancel link must be a full URL
-    params["cancel"] = request.build_absolute_uri(reverse("socialauth_login_page"))
+    params["client_id"] = FACEBOOK_APP_ID
+    params["redirect_uri"] = reverse("socialauth_facebook_login_done")[1:] # remove leading slash
 
-    if device == "mobile":
-        url = "http://m.facebook.com/tos.php?" + urllib.urlencode(params)
-    elif device == "touch":
-        params["connect_display"] = "touch"
-        url = "http://www.facebook.com/login.php?" + urllib.urlencode(params)
-    else:
-        url = "http://facebook.com/login.php?"+urllib.urlencode(params)
+    url = "https://graph.facebook.com/oauth/authorize?"+urllib.urlencode(params)
 
     return HttpResponseRedirect(url)
     
 def facebook_login_done(request):
-    API_KEY = settings.FACEBOOK_API_KEY
 
-    """
-    Facebook connect for mobile doesn't set these cookies
-    if API_KEY not in request.COOKIES:
-        logging.debug("SOCIALAUTH: Facebook API Key not in Cookies, perhaps cookies are disabled")
-        logging.debug("SOCIALAUTH: Here are some cookies: " + str(request.COOKIES))
-        return HttpResponseRedirect(reverse('socialauth_login_page'))
-    """
     if request.user and request.user.is_authenticated():
         res = authenticate(request=request, user=request.user)
         if res:
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=true')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=true')
         else:
             del request.COOKIES[API_KEY + '_session_key']
             del request.COOKIES[API_KEY + '_user']
             logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
-            return HttpResponseRedirect(settings.ADD_LOGIN_REDIRECT_URL + '?add_login=false')
+            return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
     else:
-        user = authenticate(request = request)
+
+        user = authenticate(request=request)
 
         if not user:
             del request.COOKIES[API_KEY + '_session_key']
             del request.COOKIES[API_KEY + '_user']
+
             # TODO: maybe the project has its own login page?
             logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
             return HttpResponseRedirect(reverse('socialauth_login_page'))
 
         login(request, user)
         logging.debug("SOCIALAUTH: Successfully logged in with Facebook!")
-        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def openid_login_page(request):
     return render_to_response('openid/index.html', context_instance=RequestContext(request))
@@ -316,6 +309,6 @@ def social_logout(request):
     logout_response = logout(request)
     
     if getattr(settings, 'LOGOUT_REDIRECT_URL', None):
-        return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
+        return HttpResponseRedirect(LOGOUT_REDIRECT_URL)
     else:
         return logout_response
