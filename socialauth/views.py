@@ -56,9 +56,6 @@ FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 def login_page(request):
     return render_to_response('socialauth/login_page.html', context_instance=RequestContext(request))
 
-def facebook_xd_receiver(request):
-    return render_to_response('socialauth/xd_reciever.htm')
-
 def linkedin_login(request):
     linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
     request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))

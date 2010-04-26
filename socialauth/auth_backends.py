@@ -182,7 +182,8 @@ class FacebookBackend:
             uid = cookie['uid']
             access_token = cookie['access_token']
         else:
-            # if not using javascript_sdk
+            # if cookie does not exist
+            # assume logging in normal way
             params = {}
             params["client_id"] = FACEBOOK_APP_ID
             params["client_secret"] = FACEBOOK_SECRET_KEY
@@ -192,11 +193,9 @@ class FacebookBackend:
             url = "https://graph.facebook.com/oauth/access_token?"+urllib.urlencode(params)
             from cgi import parse_qs
             userdata = urllib.urlopen(url).read()
-            print userdata
-            access_token = parse_qs(userdata)['access_token'][-1]
-            # TODO get uid ??
-            return None
-  
+            parse_data = parse_qs(userdata)['access_token']
+            uid = parse_data['uid'][-1]
+            access_token = parse_data['access_token'][-1]
         try:
             fb_user = FacebookUserProfile.objects.get(facebook_uid=uid)
             return fb_user.user
@@ -204,8 +203,8 @@ class FacebookBackend:
         except FacebookUserProfile.DoesNotExist:
             # create new FacebookUserProfile
             graph = facebook.GraphAPI(access_token) 
-            print graph
             fb_data = graph.get_object("me")
+
         print fb_data 
         if not fb_data:
             return None
