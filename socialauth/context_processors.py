@@ -1,9 +1,11 @@
 from django.conf import settings
 
-def socialauth (request):
-    return {'fb_api_key':settings.FACEBOOK_API_KEY,}
 
 def facebook_api_key(request):
-    return {
-        'FACEBOOK_API_KEY': settings.FACEBOOK_API_KEY
-    }
+    FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
+    FACEBOOK_REQUEST_PERMISSIONS = getattr(settings, 'FACEBOOK_REQUEST_PERMISSIONS', '')
+    if FACEBOOK_APP_ID:
+        return { 'FACEBOOK_APP_ID': FACEBOOK_APP_ID, 
+                 'login_button_perms': ' '.join(FACEBOOK_REQUEST_PERMISSIONS), }
+    else:
+        return {}

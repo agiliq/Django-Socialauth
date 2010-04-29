@@ -20,7 +20,7 @@ Libs you need to install
 1. python-openid (easy_install python-openid)
 2. Yadis (easy_install python-yadis)
 3. python-openauth(easy_install oauth)
-4. pyfacebook (http://code.google.com/p/pyfacebook/) (easy_install pyfacebook)
+4. facebook python_sdk (http://github.com/facebook/python-sdk)
 5. pylinkedin (easy_install pylinkedin)
 
 The API Keys are available from
@@ -81,7 +81,7 @@ Urls
 /gmail_login/ AND /gmail_login/done/
 /twitter_login/ AND /twitter_login/done/
 /facebook_login/done/ We dont have a start url here, as the starting tokens are
-set in a popup, as per FB Connect recommendations.
+set in a popup.
 
 Implementation
 ----------------

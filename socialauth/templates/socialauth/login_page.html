@@ -7,12 +7,7 @@
 
 {% block extra_body %}
 {{ block.super }}
-<script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"></script>
-<script type="text/javascript">
-function facebook_onlogin(){
-    window.location = "{% url socialauth_facebook_login_done %}"
-}
-</script>
+
 {% endblock %}
 
 {% block main_content %}
@@ -42,11 +37,32 @@ function facebook_onlogin(){
         <a href="{% url socialauth_google_login %}" id="google_login_link">Login via Google</a>
     </div>
     <div id="facebook">
-        <fb:login-button onlogin="facebook_onlogin();"></fb:login-button>
+        <fb:login-button perms="{{ login_button_perms }}"></fb:login-button>
     </div>
     
-    <script type="text/javascript">  FB.init("{{ FACEBOOK_API_KEY }}", "{% url socialauth_xd_receiver %}"); </script>
+    <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({appId: '{{ FACEBOOK_APP_ID }}', status: true, cookie: true, xfbml: true});
+        FB.Event.subscribe('auth.sessionChange', function(response) {
+          if (response.session) {
+              window.location = '{% url socialauth_facebook_login_done %}';
+          } else {
+              //window.location = '{% url socialauth_social_logout %}';
+          }
+        });
+      };
+      (function() {
+        var e = document.createElement('script');
+        e.type = 'text/javascript';
+        e.src = document.location.protocol +
+          '//connect.facebook.net/en_US/all.js';
+        e.async = true;
+        document.getElementById('fb-root').appendChild(e);
+      }());
+    </script>
     
+
     <br />
     <br />
     <br />
