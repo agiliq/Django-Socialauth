@@ -81,6 +81,10 @@ def linkedin_login_done(request):
     return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def twitter_login(request):
+    next = request.GET.get('next', None)
+    if next:
+        request.session['twitter_login_next'] = next
+    
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
     request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))  
     request.session['request_token'] = request_token.to_string()
@@ -128,7 +132,12 @@ def twitter_login_done(request):
         return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, use is now logged in
-    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+    next = request.session.get('twitter_login_next', None)
+    if next:
+        del request.session['twitter_login_next']
+        return HttpResponseRedirect(next)
+    else:
+        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
 def openid_login(request):
     if 'openid_identifier' in request.GET:
