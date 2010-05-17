@@ -45,7 +45,7 @@ function facebook_onlogin(){
         <fb:login-button onlogin="facebook_onlogin();"></fb:login-button>
     </div>
     
-    <script type="text/javascript">  FB.init("{{ FACEBOOK_API_KEY }}", "{% url socialauth_xd_receiver %}"); </script>
+    <script type="text/javascript">  FB.init("{{ FACEBOOK_API_KEY }}", "{% url socialauth_xd_receiver %}, { permsToRequestOnConnect : "email", }"); </script>
     
     <br />
     <br />

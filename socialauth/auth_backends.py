@@ -37,8 +37,11 @@ class OpenIdBackend:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.get('email')
-                nickname = request.openid.ax.get('nickname')
+                email = request.openid.ax.get('http://axschema.org/contact/email')[0]
+                try:
+                      nickname = request.openid.ax.get('nickname')#should be replaced by correct schema
+                except:
+                      pass
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             if email is None :
@@ -49,10 +52,11 @@ class OpenIdBackend:
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
                 username = '%s%s'%(nickname, name_count + 1)
-                user = User.objects.create_user(username,email or '')
-            else:
+            try:
+                user = User.objects.get(email=email)
+            except:
                 user = User.objects.create_user(nickname,email or '')
-            user.save()
+                user.save()
     
             #create openid association
             assoc = UserAssociation()
@@ -186,22 +190,26 @@ class FacebookBackend:
             profile = FacebookUserProfile.objects.get(facebook_uid = str(fb_user))
             return profile.user
         except FacebookUserProfile.DoesNotExist:
-            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic_big', 'pic', 'pic_small', 'current_location', 'profile_url'])
+            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic_big', 'pic', 'pic_small', 'current_location', 'profile_url', 'email'])
             if not fb_data:
                 return None
             fb_data = fb_data[0]
 
             username = 'FB:%s' % fb_data['uid']
-            #user_email = '%s@example.facebook.com'%(fb_data['uid'])
-            user = User.objects.create(username = username)
-            user.first_name = fb_data['first_name']
-            user.last_name = fb_data['last_name']
-            user.save()
-            location = str(fb_data['current_location'])
-            about_me = str(fb_data['about_me'])
-            url = str(fb_data['profile_url'])
-            fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user, profile_image_url = fb_data['pic'], profile_image_url_big = fb_data['pic_big'], profile_image_url_small = fb_data['pic_small'], location=location, about_me=about_me, url=url)
-            fb_profile.save()
+            email = fb_data['email']
+            try:
+                  user = User.objects.get(email=email)
+            except:
+                  #user_email = '%s@example.facebook.com'%(fb_data['uid'])
+                  user = User.objects.create(username = username)
+                  user.first_name = fb_data['first_name']
+                  user.last_name = fb_data['last_name']
+                  user.save()
+                  location = unicode(fb_data['current_location'])
+                  about_me = unicode(fb_data['about_me'])
+                  url = str(fb_data['profile_url'])
+                  fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user, profile_image_url = fb_data['pic'], profile_image_url_big = fb_data['pic_big'], profile_image_url_small = fb_data['pic_small'], location=location, about_me=about_me, url=url)
+                  fb_profile.save()
             auth_meta = AuthMeta(user=user, provider='Facebook').save()
             return user
         except Exception, e:

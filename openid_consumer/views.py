@@ -24,7 +24,7 @@ else:
 from openid.consumer.consumer import Consumer, \
     SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 from openid.consumer.discover import DiscoveryFailure
-from yadis import xri
+from openid.yadis import xri
 
 from util import OpenID, DjangoOpenIDStore, from_openid_response
 from middleware import OpenIDMiddleware

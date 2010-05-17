@@ -8,7 +8,7 @@ class AuthMeta(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.user, self.provider)
     
-    user = models.OneToOneField(User)
+    user = models.ForeignKey(User)
     provider = models.CharField(max_length = 200)
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
@@ -39,7 +39,7 @@ class LinkedInUserProfile(models.Model):
     user = models.ForeignKey(User, related_name='linkedin_profiles')
     headline = models.CharField(max_length=120, blank=True, null=True)
     company = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     industry = models.CharField(max_length=255, blank=True, null=True)
     profile_image_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
@@ -57,7 +57,7 @@ class TwitterUserProfile(models.Model):
     user = models.ForeignKey(User, related_name='twitter_profiles')
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     description = models.CharField(max_length=160, blank=True, null=True)
 
@@ -75,7 +75,7 @@ class FacebookUserProfile(models.Model):
     profile_image_url = models.URLField(blank=True, null=True)
     profile_image_url_big = models.URLField(blank=True, null=True)
     profile_image_url_small = models.URLField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     about_me = models.CharField(max_length=160, blank=True, null=True)
 
