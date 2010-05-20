@@ -62,7 +62,7 @@ class GoogleOAuthClient(oauth.OAuthClient):
         params = oauth_request.parameters
         data = urllib.urlencode(params)
         full_url='%s?%s'%(url, data)
-        print full_url
+        #print full_url
         response = urllib2.urlopen(full_url)
         return response
 

@@ -78,4 +78,4 @@ class FacebookUserProfile(models.Model):
     location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     about_me = models.CharField(max_length=160, blank=True, null=True)
-
+    
