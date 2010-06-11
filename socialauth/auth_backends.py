@@ -204,7 +204,12 @@ class FacebookBackend:
             url = "https://graph.facebook.com/oauth/access_token?"+urllib.urlencode(params)
             from cgi import parse_qs
             userdata = urllib.urlopen(url).read()
-            parse_data = parse_qs(userdata)['access_token']
+            res_parse_qs = parse_qs(userdata)
+            # Could be a bot query
+            if not res_parse_qs.has_key('access_token'):
+                return None
+                
+            parse_data = res_parse_qs['access_token']
             uid = parse_data['uid'][-1]
             access_token = parse_data['access_token'][-1]
             
