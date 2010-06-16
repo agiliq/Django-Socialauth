@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "django-socialauth",
-    version = "0.1.2b",
+    version = "0.1.2c",
     packages = ['socialauth',
                 'socialauth/lib',
                 'socialauth/templatetags',
