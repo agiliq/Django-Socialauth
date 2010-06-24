@@ -43,8 +43,8 @@ class GoogleOAuthClient(oauth.OAuthClient):
         data = urllib.urlencode(params)
         full_url='%s?%s'%(self.authorization_url, data)
         return full_url
-        response = urllib2.urlopen(full_url)
-        return oauth.OAuthToken.from_string(response.read())
+        # response = urllib2.urlopen(full_url)
+        # return oauth.OAuthToken.from_string(response.read())
 
     def fetch_access_token(self, token):
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=self.access_token_url)
@@ -62,7 +62,7 @@ class GoogleOAuthClient(oauth.OAuthClient):
         params = oauth_request.parameters
         data = urllib.urlencode(params)
         full_url='%s?%s'%(url, data)
-        print full_url
+        #print full_url
         response = urllib2.urlopen(full_url)
         return response
 

@@ -24,7 +24,7 @@ else:
 from openid.consumer.consumer import Consumer, \
     SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 from openid.consumer.discover import DiscoveryFailure
-from yadis import xri
+from openid.yadis import xri
 
 from util import OpenID, DjangoOpenIDStore, from_openid_response
 from middleware import OpenIDMiddleware
@@ -156,6 +156,9 @@ def complete(request, on_success=None, on_failure=None, failure_template='openid
         (k.encode('utf8'), v.encode('utf8')) for k, v in request.REQUEST.items()
     ])
 
+    # import ipdb
+    # ipdb.set_trace()
+    
     url = get_url_host(request) + request.path
     openid_response = consumer.complete(query_dict, url)
     if openid_response.status == SUCCESS:

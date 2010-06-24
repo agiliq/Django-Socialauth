@@ -13,7 +13,7 @@ else:
 from openid.store import nonce as oid_nonce
 from openid.store.interface import OpenIDStore
 from openid.association import Association as OIDAssociation
-from yadis import xri
+from openid.yadis import xri
 
 import time, base64, md5
 

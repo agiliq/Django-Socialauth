@@ -69,11 +69,11 @@ class OAuthApi(Api):
         extra_params = {}
         try:
             if self._default_params:
-              extra_params.update(self._default_params)
+                extra_params.update(self._default_params)
         except AttributeError:
             pass
         if parameters:
-          extra_params.update(parameters)
+            extra_params.update(parameters)
     
         # Add key/value parameters to the query string of the url
         #url = self._BuildUrl(url, extra_params=extra_params)
@@ -105,28 +105,28 @@ class OAuthApi(Api):
         # Open and return the URL immediately if we're not going to cache
         # OR we are posting data
         if encoded_post_data or no_cache:
-          if encoded_post_data:
-              url_data = opener.open(url, encoded_post_data).read()
-          else:
-              url_data = opener.open(url).read()
-          opener.close()
-        else:
-          # Unique keys are a combination of the url and the username
-          if self._username:
-            key = self._username + ':' + url
-          else:
-            key = url
-    
-          # See if it has been cached before
-          last_cached = self._cache.GetCachedTime(key)
-    
-          # If the cached version is outdated then fetch another and store it
-          if not last_cached or time.time() >= last_cached + self._cache_timeout:
-            url_data = opener.open(url).read()
+            if encoded_post_data:
+                url_data = opener.open(url, encoded_post_data).read()
+            else:
+                url_data = opener.open(url).read()
             opener.close()
-            self._cache.Set(key, url_data)
-          else:
-            url_data = self._cache.Get(key)
+        else:
+            # Unique keys are a combination of the url and the username
+            if self._username:
+                key = self._username + ':' + url
+            else:
+                key = url
+    
+            # See if it has been cached before
+            last_cached = self._cache.GetCachedTime(key)
+    
+            # If the cached version is outdated then fetch another and store it
+            if not last_cached or time.time() >= last_cached + self._cache_timeout:
+                url_data = opener.open(url).read()
+                opener.close()
+                self._cache.Set(key, url_data)
+            else:
+                url_data = self._cache.Get(key)
     
         # Always return the latest version
         return url_data

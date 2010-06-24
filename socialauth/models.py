@@ -8,7 +8,7 @@ class AuthMeta(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.user, self.provider)
     
-    user = models.OneToOneField(User)
+    user = models.ForeignKey(User)
     provider = models.CharField(max_length = 200)
     is_email_filled = models.BooleanField(default = False)
     is_profile_modified = models.BooleanField(default = False)
@@ -45,8 +45,8 @@ class LinkedInUserProfile(models.Model):
     url = models.URLField(blank=True, null=True)
     access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
 
-    def __str__(self):
-            return "%s's profile" % self.user
+    def __unicode__(self):
+        return "%s's profile" % self.user
 
 class TwitterUserProfile(models.Model):
     """
@@ -61,8 +61,8 @@ class TwitterUserProfile(models.Model):
     url = models.URLField(blank=True, null=True)
     description = models.CharField(max_length=160, blank=True, null=True)
 
-    def __str__(self):
-            return "%s's profile" % self.user
+    def __unicode__(self):
+        return "%s's profile" % self.user
         
 
 class FacebookUserProfile(models.Model):
@@ -78,4 +78,6 @@ class FacebookUserProfile(models.Model):
     location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     about_me = models.CharField(max_length=160, blank=True, null=True)
-
+    
+    def __unicode__(self):
+        return "%s's profile" % self.user

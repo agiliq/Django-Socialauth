@@ -9,11 +9,9 @@ urlpatterns = patterns('',
     (r'^admin/', admin.site.urls), 
     #(r'^$', leave_comment), 
     (r'^$', 'socialauth.views.signin_complete'), 
-
->>>>>>> ecd9f42fc391a068637dac06a326a1eb6d1b3f0f:urls.py
 )
-from django.conf import settings
 
+from django.conf import settings
 if settings.DEBUG:
     
     urlpatterns += patterns('',

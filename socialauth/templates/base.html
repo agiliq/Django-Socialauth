@@ -5,15 +5,19 @@
 
 <head>
     <title>{% if user.is_authenticated %}Hello {{ user }}{% else %}Please login{% endif %}</title>
+    <link rel="stylesheet" type="text/css" media="screen"  href="{{ MEDIA_URL }}css/socialauth.css" />
     {% block extra_head %}
     {% endblock %}
 </head>
+
 <body>
+    <h1>socialauth</h1>
     {% block extra_body %}
     {% endblock %}
     
     {% block main_content %}
     {% endblock %}
+    
     {% block content %}
     {% endblock %}
     <!-- Insert your content here -->

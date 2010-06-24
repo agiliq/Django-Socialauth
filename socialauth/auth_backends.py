@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.conf import settings
-from facebook import Facebook
+import facebook
 
-from socialauth.lib import oauthtwitter
+import urllib
+from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
 from socialauth.lib.facebook import get_user_info, get_facebook_signature
 from socialauth.lib.linkedin import *
@@ -13,11 +15,9 @@ import random
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
 
-# Harmonized with PyFacebook
-
+FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
 FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
 FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
-FACEBOOK_URL = getattr(settings, 'FACEBOOK_URL', 'http://api.facebook.com/restserver.php')
 
 # Linkedin
 
@@ -25,7 +25,7 @@ LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
 class OpenIdBackend:
-    def authenticate(self, openid_key, request, provider):
+    def authenticate(self, openid_key, request, provider, user=None):
         try:
             assoc = UserAssociation.objects.get(openid_key = openid_key)
             return assoc.user
@@ -37,22 +37,29 @@ class OpenIdBackend:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.get('email')
-                nickname = request.openid.ax.get('nickname')
+                email = request.openid.ax.get('http://axschema.org/contact/email')[0]
+                try:
+                    nickname = request.openid.ax.get('nickname')#should be replaced by correct schema
+                except:
+                    pass
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
-            if email is None :
-                valid_username = False
-                email =  None #'%s@example.openid.com'%(nickname)
-            else:
-                valid_username = True
+            
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
-                username = '%s%s'%(nickname, name_count + 1)
-                user = User.objects.create_user(username,email or '')
+                username = '{0}{1}'.format(nickname, name_count + 1)
             else:
-                user = User.objects.create_user(nickname,email or '')
-            user.save()
+                username = '{0}'.format(nickname)
+                
+            if email is None :
+                valid_username = False
+                email =  "{0}@socialauth".format(username)
+            else:
+                valid_username = True
+
+            if not user:
+                user = User.objects.create_user(username, email or '')
+                user.save()
     
             #create openid association
             assoc = UserAssociation()
@@ -67,7 +74,7 @@ class OpenIdBackend:
             assoc.save()
             
             #Create AuthMeta
-            auth_meta = AuthMeta(user = user, provider = provider)
+            auth_meta = AuthMeta(user=user, provider=provider, provider_model='OpenidProfile', provider_id=assoc.pk)
             auth_meta.save()
             return user
     
@@ -81,7 +88,7 @@ class OpenIdBackend:
 class LinkedInBackend:
     """LinkedInBackend for authentication
     """
-    def authenticate(self, linkedin_access_token):
+    def authenticate(self, linkedin_access_token, user=None):
         linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
         # get their profile
         
@@ -94,22 +101,18 @@ class LinkedInBackend:
         except LinkedInUserProfile.DoesNotExist:
             # Create a new user
             username = 'LI:%s' % profile.id
-            user = User(username =  username)
-            temp_password = User.objects.make_random_password(length=12)
-            user.set_password(temp_password)
-            user.first_name, user.last_name = profile.firstname, profile.lastname
-            #user.email = '%s@example.linkedin.com'%(person.id)
-            user.save()
-            userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
-            #userprofile.access_token = linkedin_access_token.key
-            userprofile.headline = profile.headline
-            userprofile.company = profile.company
-            userprofile.location = profile.location
-            userprofile.industry = profile.industry
-            userprofile.profile_image_url = profile.picture_url
-            userprofile.url = profile.profile_url
+
+            if not user:
+                user = User(username =  username)
+                user.first_name, user.last_name = profile.firstname, profile.lastname
+                user.email = '{0}@socialauth'.format(username)
+                user.save()
+                
+            userprofile = LinkedInUserProfile(user=user, linkedin_uid=profile.id)
             userprofile.save()
+            
             auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
+            
             return user
 
     def get_user(self, user_id):
@@ -121,12 +124,13 @@ class LinkedInBackend:
 class TwitterBackend:
     """TwitterBackend for authentication
     """
-    def authenticate(self, twitter_access_token):
+    def authenticate(self, twitter_access_token, user=None):
         '''authenticates the token by requesting user information from twitter
         '''
-        twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, twitter_access_token)
+        # twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, twitter_access_token)
+        twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
         try:
-            userinfo = twitter.GetUserInfo()
+            userinfo = twitter.get_user_info(twitter_access_token)
         except:
             # If we cannot get the user information, user cannot be authenticated
             raise
@@ -134,35 +138,46 @@ class TwitterBackend:
         screen_name = userinfo.screen_name
         
         try:
-            user_profile = TwitterUserProfile.objects.get(screen_name = screen_name)
+            user_profile = TwitterUserProfile.objects.get(screen_name=screen_name)
+            
+            # Update Twitter Profile
+            user_profile.url = userinfo.url
+            user_profile.location = userinfo.location
+            user_profile.description = userinfo.description
+            user_profile.profile_image_url = userinfo.profile_image_url
+            user_profile.save()
+            
             user = user_profile.user
             return user
         except TwitterUserProfile.DoesNotExist:
-            #Create new user
-            same_name_count = User.objects.filter(username__startswith = screen_name).count()
-            if same_name_count:
-                username = '%s%s' % (screen_name, same_name_count + 1)
-            else:
-                username = screen_name
-            user = User(username =  username)
-            temp_password = User.objects.make_random_password(length=12)
-            user.set_password(temp_password)
-            name_data = userinfo.name.split()
-            try:
-                first_name, last_name = name_data[0], ' '.join(name_data[1:])
-            except:
-                first_name, last_name =  screen_name, ''
-            user.first_name, user.last_name = first_name, last_name
-            #user.email = '%s@example.twitter.com'%(userinfo.screen_name)
-            user.save()
-            userprofile = TwitterUserProfile(user = user, screen_name = screen_name)
-            # userprofile.access_token = access_token.key
-            userprofile.url = userinfo.url
-            userprofile.location = userinfo.location
-            userprofile.description = userinfo.description
-            userprofile.profile_image_url = userinfo.profile_image_url
-            userprofile.save()
+            # Create new user
+            if not user:
+                same_name_count = User.objects.filter(username__startswith=screen_name).count()
+                if same_name_count:
+                    username = '%s%s' % (screen_name, same_name_count + 1)
+                else:
+                    username = screen_name
+                user = User(username=username)
+                name_data = userinfo.name.split()
+                try:
+                    first_name, last_name = name_data[0], ' '.join(name_data[1:])
+                except:
+                    first_name, last_name =  screen_name, ''
+                user.first_name, user.last_name = first_name, last_name
+                #user.email = screen_name + "@socialauth"
+                #user.email = '%s@example.twitter.com'%(userinfo.screen_name)
+                user.save()
+                
+            user_profile = TwitterUserProfile(user=user, screen_name=screen_name)
+            user_profile.access_token = twitter_access_token
+            user_profile.url = userinfo.url
+            user_profile.location = userinfo.location
+            user_profile.description = userinfo.description
+            user_profile.profile_image_url = userinfo.profile_image_url
+            user_profile.save()
+            
             auth_meta = AuthMeta(user=user, provider='Twitter').save()
+                
             return user
 
     def get_user(self, user_id):
@@ -172,46 +187,59 @@ class TwitterBackend:
             return None
         
 class FacebookBackend:
-    def authenticate(self, request):
+    def authenticate(self, request, user=None):
+        cookie = facebook.get_user_from_cookie(request.COOKIES, FACEBOOK_APP_ID, FACEBOOK_SECRET_KEY)
 
-        """
-        if not settings.FACEBOOK_API_KEY in request.COOKIES:
-            logging.debug("Could not find FACEBOOK_API_KEY in Cookies")
-            return None
-        """
+        if cookie:
+            uid = cookie['uid']
+            access_token = cookie['access_token']
+        else:
+            # if cookie does not exist
+            # assume logging in normal way
+            params = {}
+            params["client_id"] = FACEBOOK_APP_ID
+            params["client_secret"] = FACEBOOK_SECRET_KEY
+            params["redirect_uri"] = reverse("socialauth_facebook_login_done")[1:] 
+            params["code"] = request.GET.get('code', '')
 
-        facebook =  Facebook(settings.FACEBOOK_API_KEY,
-                             settings.FACEBOOK_SECRET_KEY)
-                             
-        check = facebook.check_session(request)
-        fb_user = facebook.users.getLoggedInUser()
-
+            url = "https://graph.facebook.com/oauth/access_token?"+urllib.urlencode(params)
+            from cgi import parse_qs
+            userdata = urllib.urlopen(url).read()
+            res_parse_qs = parse_qs(userdata)
+            # Could be a bot query
+            if not res_parse_qs.has_key('access_token'):
+                return None
+                
+            parse_data = res_parse_qs['access_token']
+            uid = parse_data['uid'][-1]
+            access_token = parse_data['access_token'][-1]
+            
         try:
-            profile = FacebookUserProfile.objects.get(facebook_uid = str(fb_user))
-            return profile.user
+            fb_user = FacebookUserProfile.objects.get(facebook_uid=uid)
+            return fb_user.user
+
         except FacebookUserProfile.DoesNotExist:
-            fb_data = facebook.users.getInfo([fb_user], ['uid', 'about_me', 'first_name', 'last_name', 'pic_big', 'pic', 'pic_small', 'current_location', 'profile_url'])
+            
+            # create new FacebookUserProfile
+            graph = facebook.GraphAPI(access_token) 
+            fb_data = graph.get_object("me")
+
             if not fb_data:
                 return None
-            fb_data = fb_data[0]
 
-            username = 'FB:%s' % fb_data['uid']
-            #user_email = '%s@example.facebook.com'%(fb_data['uid'])
-            user = User.objects.create(username = username)
-            user.first_name = fb_data['first_name']
-            user.last_name = fb_data['last_name']
-            user.save()
-            location = str(fb_data['current_location'])
-            about_me = str(fb_data['about_me'])
-            url = str(fb_data['profile_url'])
-            fb_profile = FacebookUserProfile(facebook_uid = str(fb_data['uid']), user = user, profile_image_url = fb_data['pic'], profile_image_url_big = fb_data['pic_big'], profile_image_url_small = fb_data['pic_small'], location=location, about_me=about_me, url=url)
+            username = uid
+            if not user:
+                user = User.objects.create(username=username)
+                user.first_name = fb_data['first_name']
+                user.last_name = fb_data['last_name']
+                user.save()
+                
+            fb_profile = FacebookUserProfile(facebook_uid=uid, user=user)
             fb_profile.save()
+            
             auth_meta = AuthMeta(user=user, provider='Facebook').save()
+                
             return user
-        except Exception, e:
-            print str(e)
-
-        return None
 
     
     def get_user(self, user_id):
