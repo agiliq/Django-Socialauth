@@ -182,6 +182,7 @@ class ConnectionsApi(LinkedInApi):
 
                 for p in peopleDom:
                     try:
+                        pk = p.getElementsByTagName('id')[0].firstChild.nodeValue
                         fn = p.getElementsByTagName('first-name')[0].firstChild.nodeValue
                         ln = p.getElementsByTagName('last-name')[0].firstChild.nodeValue
                         headline = p.getElementsByTagName('headline')[0].firstChild.nodeValue
@@ -189,6 +190,7 @@ class ConnectionsApi(LinkedInApi):
                         industry = p.getElementsByTagName('industry')[0].firstChild.nodeValue
                         #location = p.getElementsByTagName('industry')[0].firstChild.nodeValue
                         person = Person()
+                        person.id = pk
                         person.firstname = fn
                         person.lastname = ln
                         person.headline = headline

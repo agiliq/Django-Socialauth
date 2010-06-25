@@ -86,7 +86,7 @@ class LinkedInBackend:
     """LinkedInBackend for authentication
     """
     def authenticate(self, linkedin_access_token, user=None):
-        linkedin = LinkedIn(settings.LINKEDIN_CONSUMER_KEY, settings.LINKEDIN_CONSUMER_SECRET)
+        linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
         # get their profile
         
         profile = ProfileApi(linkedin).getMyProfile(access_token = linkedin_access_token)
@@ -107,7 +107,8 @@ class LinkedInBackend:
                 user.save()
             userprofile = LinkedInUserProfile(user = user, linkedin_uid = profile.id)
             userprofile.save()
-            auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
+            auth_meta = AuthMeta(user=user, provider='LinkedIn', 
+                provider_model='LinkedInUserProfile', provider_id=userprofile.pk).save()
             return user
 
     def get_user(self, user_id):
@@ -130,6 +131,7 @@ class TwitterBackend:
             raise
 
         screen_name = userinfo.screen_name
+        twitter_id = userinfo.id
         
         try:
             user_profile = TwitterUserProfile.objects.get(screen_name = screen_name)
@@ -137,7 +139,7 @@ class TwitterBackend:
             return user
         except TwitterUserProfile.DoesNotExist:
             # Create new user
-            username = "TW:{0}".format(screen_name)
+            username = "TW:{0}".format(twitter_id)
             if not user:
                 user = User(username =  username)
                 temp_password = User.objects.make_random_password(length=12)

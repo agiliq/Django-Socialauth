@@ -114,27 +114,30 @@ def twitter_login_done(request):
     # They probably meant to sign in with facebook >:D
     if denied:
         return HttpResponseRedirect(reverse("socialauth_login_page"))
-    
+
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
         # Redirect the user to the login page,
         return HttpResponseRedirect(reverse("socialauth_login_page"))
-    
+
     token = oauth.OAuthToken.from_string(request_token)
-    
+
     # If the token from session and token from twitter does not match
     #   means something bad happened to tokens
+
     if token.key != request.GET.get('oauth_token', 'no-token'):
             del request.session['request_token']
             # Redirect the user to the login page
             return HttpResponseRedirect(reverse("socialauth_login_page"))
-    
+
     twitter = oauthtwitter.TwitterOAuthClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)  
     access_token = twitter.fetch_access_token(token, verifier)
-    
-    request.session['access_token'] = access_token.to_string()
-    
+
+
+
+    request.session['access_token'] = access_token
+
     if request.user and request.user.is_authenticated():
         res = authenticate(twitter_access_token=access_token, user=request.user)
         if res:
@@ -143,7 +146,7 @@ def twitter_login_done(request):
             return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
     else:
         user = authenticate(twitter_access_token=access_token)
-    
+
         # if user is authenticated then login user
         if user:
             login(request, user)
