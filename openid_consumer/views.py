@@ -156,9 +156,6 @@ def complete(request, on_success=None, on_failure=None, failure_template='openid
         (k.encode('utf8'), v.encode('utf8')) for k, v in request.REQUEST.items()
     ])
 
-    # import ipdb
-    # ipdb.set_trace()
-    
     url = get_url_host(request) + request.path
     openid_response = consumer.complete(query_dict, url)
     if openid_response.status == SUCCESS:

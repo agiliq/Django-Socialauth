@@ -55,8 +55,11 @@ a.openid_large_btn:focus{
 .openid_selected{
 	border: 4px solid #DDD;
 }
+.linkedin{
+	background: #FFF url(/site_media/images/linkedin.jpg) no-repeat center center;
+}
 .yahoo{
-	background: #FFF url(/site_media/images/yahoo.png) no-repeat center center;
+	background: #FFF url(/site_media/images/yahoo.gif) no-repeat center center;
 }
 .google{
 	background: #FFF url(/site_media/images/google.png) no-repeat center center;

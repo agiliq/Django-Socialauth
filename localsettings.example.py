@@ -21,6 +21,9 @@ FACEBOOK_APP_ID = ''
 FACEBOOK_API_KEY = ''
 FACEBOOK_SECRET_KEY = ''
 
+LINKEDIN_CONSUMER_KEY = ''
+LINKEDIN_CONSUMER_SECRET = ''
+
 ## if any of this information is desired for your app
 FACEBOOK_EXTENDED_PERMISSIONS = (
     #'publish_stream',
@@ -75,14 +78,10 @@ FACEBOOK_EXTENDED_PERMISSIONS = (
 )
 
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
-                           'socialauth.auth_backends.OpenIdBackend',
-                           'socialauth.auth_backends.TwitterBackend',
-                           'socialauth.auth_backends.FacebookBackend',
-                           )
-
-
-
-
-
-
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'socialauth.auth_backends.OpenIdBackend',
+    'socialauth.auth_backends.TwitterBackend',
+    'socialauth.auth_backends.FacebookBackend',
+    'socialauth.auth_backends.LinkedInBackend',
+)

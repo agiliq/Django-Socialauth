@@ -86,8 +86,8 @@ def linkedin_login_done(request):
     else:
 	# We were not able to authenticate user
 	# Redirect to login page
-	del request.session['access_token']
-	del request.session['request_token']
+	del_dict_key(request.session, 'access_token')
+	del_dict_key(request.session, 'request_token')
 	return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, user is now logged in
@@ -187,8 +187,6 @@ def openid_done(request, provider=None):
     If we are, we will create a new Django user for this Openid, else login the
     existing openid.
     """
-    # import ipdb
-    # ipdb.set_trace()
     
     if not provider:
         provider = request.session.get('openid_provider', '')
