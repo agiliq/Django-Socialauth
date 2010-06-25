@@ -133,7 +133,8 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
     if ax:
         axr = AXFetchRequest()
         for i in ax:
-            axr.add(AttrInfo(i['type_uri'], i['count'], i['required'], i['alias']))
+            # axr.add(AttrInfo(i['type_uri'], i['count'], i['required'], i['alias']))
+            axr.add(AttrInfo(i['type_uri'], required=i['required']))
         auth_request.addExtension(axr)
 
     redirect_url = auth_request.redirectURL(trust_root, redirect_to)

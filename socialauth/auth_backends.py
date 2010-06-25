@@ -33,13 +33,16 @@ class OpenIdBackend:
             #fetch if openid provider provides any simple registration fields
             nickname = None
             email = None
+            first_name, last_name = None, None
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
+                first_name, last_name = request.openid.sreg.get('fullname', '').split(' ', 1)
             elif request.openid and request.openid.ax:
                 email = request.openid.ax.get('http://axschema.org/contact/email')[0]
                 try:
-                    nickname = request.openid.ax.get('nickname')#should be replaced by correct schema
+                    nickname = request.openid.ax.get('http://axschema.org/namePerson/friendly')[0]#should be replaced by correct schema
+                    first_name, last_name = request.openid.ax.get('http://axschema.org/namePerson')[0].split(' ', 1)
                 except:
                     pass
             if nickname is None :
@@ -59,6 +62,9 @@ class OpenIdBackend:
 
             if not user:
                 user = User.objects.create_user(username, email or '')
+                if first_name or last_name:
+                    user.first_name = first_name
+                    user.last_name = last_name
                 user.save()
     
             #create openid association
@@ -74,7 +80,8 @@ class OpenIdBackend:
             assoc.save()
             
             #Create AuthMeta
-            auth_meta = AuthMeta(user=user, provider=provider, provider_model='OpenidProfile', provider_id=assoc.pk)
+            # auth_meta = AuthMeta(user=user, provider=provider, provider_model='OpenidProfile', provider_id=assoc.pk)
+            auth_meta = AuthMeta(user=user, provider=provider)
             auth_meta.save()
             return user
     
