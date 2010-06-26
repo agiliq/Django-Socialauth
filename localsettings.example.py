@@ -14,6 +14,14 @@ OPENID_AX = [{"type_uri": "http://axschema.org/contact/email",
               "required": False,
               "alias": "fname"}]
 
+OPENID_AX_PROVIDER_MAP = {'Google': {'email': 'http://axschema.org/contact/email',
+                                     'firstname': 'http://axschema.org/namePerson/first',
+                                     'lastname': 'http://axschema.org/namePerson/last'},
+                          'Default': {'email': 'http://axschema.org/contact/email',
+                                      'fullname': 'http://axschema.org/namePerson',
+                                      'nickname': 'http://axschema.org/namePerson/friendly'}
+                          }
+
 TWITTER_CONSUMER_KEY = ''
 TWITTER_CONSUMER_SECRET = ''
 

@@ -24,6 +24,10 @@ FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
+# OpenId setting map
+
+OPENID_AX_PROVIDER_MAP = getattr(settings, 'OPENID_AX_PROVIDER_MAP', {})
+
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider, user=None):
         try:
@@ -33,18 +37,28 @@ class OpenIdBackend:
             #fetch if openid provider provides any simple registration fields
             nickname = None
             email = None
-            first_name, last_name = None, None
+            firstname = None
+            lastname = None
+            
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
-                first_name, last_name = request.openid.sreg.get('fullname', '').split(' ', 1)
+                firstname, lastname = request.openid.sreg.get('fullname', '').split(' ', 1)
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.get('http://axschema.org/contact/email')[0]
-                try:
-                    nickname = request.openid.ax.get('http://axschema.org/namePerson/friendly')[0]#should be replaced by correct schema
-                    first_name, last_name = request.openid.ax.get('http://axschema.org/namePerson')[0].split(' ', 1)
-                except:
-                    pass
+                email = request.openid.ax.getSingle('http://axschema.org/contact/email')
+                if 'google' in provider:
+                    ax_schema = OPENID_AX_PROVIDER_MAP['Google']
+                    firstname = request.openid.ax.getSingle(ax_schema['firstname'])
+                    lastname = request.openid.ax.getSingle(ax_schema['lastname'])
+                    nickname = email.split('@')[0]
+                else:
+                    ax_schema = OPENID_AX_PROVIDER_MAP['Default']
+                    try:
+                        nickname = request.openid.ax.getSingle(ax_schema['nickname']) #should be replaced by correct schema
+                        firstname, lastname = request.openid.ax.getSingle(ax_schema['fullname']).split(' ', 1)
+                    except:
+                        pass
+
             if nickname is None :
                 nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
             
@@ -59,13 +73,13 @@ class OpenIdBackend:
                 email =  "{0}@socialauth".format(username)
             else:
                 valid_username = True
-
+            
             if not user:
-                user = User.objects.create_user(username, email or '')
-                if first_name or last_name:
-                    user.first_name = first_name
-                    user.last_name = last_name
-                user.save()
+                user = User.objects.create_user(username, email)
+                
+            user.first_name = firstname
+            user.last_name = lastname
+            user.save()
     
             #create openid association
             assoc = UserAssociation()
@@ -84,7 +98,15 @@ class OpenIdBackend:
             auth_meta = AuthMeta(user=user, provider=provider)
             auth_meta.save()
             return user
-    
+        
+    def GooglesAX(self,openid_response):
+        email = openid_response.ax.getSingle('http://axschema.org/contact/email')
+        firstname = openid_response.ax.getSingle('http://axschema.org/namePerson/first')
+        lastname = openid_response.ax.getSingle('http://axschema.org/namePerson/last')
+        # country = openid_response.ax.getSingle('http://axschema.org/contact/country/home')
+        # language = openid_response.ax.getSingle('http://axschema.org/pref/language')
+        return locals()
+  
     def get_user(self, user_id):
         try:
             user = User.objects.get(pk = user_id)
