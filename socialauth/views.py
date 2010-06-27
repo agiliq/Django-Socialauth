@@ -240,8 +240,8 @@ def facebook_login_done(request):
         if res:
             return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=true')
         else:
-            del request.COOKIES[API_KEY + '_session_key']
-            del request.COOKIES[API_KEY + '_user']
+            del request.COOKIES[FACEBOOK_API_KEY + '_session_key']
+            del request.COOKIES[FACEBOOK_API_KEY + '_user']
             logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
             return HttpResponseRedirect(ADD_LOGIN_REDIRECT_URL + '?add_login=false')
     else:
@@ -249,8 +249,8 @@ def facebook_login_done(request):
         user = authenticate(request=request)
 
         if not user:
-            del request.COOKIES[API_KEY + '_session_key']
-            del request.COOKIES[API_KEY + '_user']
+            del request.COOKIES[FACEBOOK_API_KEY + '_session_key']
+            del request.COOKIES[FACEBOOK_API_KEY + '_user']
 
             # TODO: maybe the project has its own login page?
             logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
