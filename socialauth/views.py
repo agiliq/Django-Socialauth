@@ -113,7 +113,7 @@ def twitter_login_done(request):
     # They probably meant to sign in with facebook >:D
     if denied:
         return HttpResponseRedirect(reverse("socialauth_login_page"))
-    
+
     # If there is no request_token for session,
     # Means we didn't redirect user to twitter
     if not request_token:
@@ -125,9 +125,9 @@ def twitter_login_done(request):
     # If the token from session and token from twitter does not match
     # means something bad happened to tokens
     if token.key != request.GET.get('oauth_token', 'no-token'):
-	del_dict_key(request.session, 'request_token')
-	# Redirect the user to the login page
-	return HttpResponseRedirect(reverse("socialauth_login_page"))
+	    del_dict_key(request.session, 'request_token')
+	    # Redirect the user to the login page
+	    return HttpResponseRedirect(reverse("socialauth_login_page"))
 
     try:
         twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
@@ -137,17 +137,16 @@ def twitter_login_done(request):
         user = authenticate(twitter_access_token=access_token)
     except:
         user = None
-	raise
-
+  
     # if user is authenticated then login user
     if user:
         login(request, user)
     else:
-	# We were not able to authenticate user
-	# Redirect to login page
-	del_dict_key(request.session, 'access_token')
-	del_dict_key(request.session, 'request_token')
-	return HttpResponseRedirect(reverse('socialauth_login_page'))
+    	# We were not able to authenticate user
+    	# Redirect to login page
+    	del_dict_key(request.session, 'access_token')
+    	del_dict_key(request.session, 'request_token')
+    	return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, use is now logged in
     next = request.session.get('twitter_login_next', None)
@@ -235,6 +234,9 @@ def facebook_login_done(request):
     user = authenticate(request=request)
 
     if not user:
+        del request.COOKIES[FACEBOOK_API_KEY + '_session_key']
+        del request.COOKIES[FACEBOOK_API_KEY + '_user']
+
         # TODO: maybe the project has its own login page?
         logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
         return HttpResponseRedirect(reverse('socialauth_login_page'))
