@@ -246,7 +246,7 @@ def facebook_login_done(request):
     if request.GET.get('next'):
         return HttpResponseRedirect(request.GET.get('next'))
     else:
-	return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def openid_login_page(request):
     return render_to_response('openid/index.html', context_instance=RequestContext(request))
