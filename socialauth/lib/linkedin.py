@@ -174,7 +174,6 @@ class ConnectionsApi(LinkedInApi):
                     # Access c.firstname, c.lastname, etc.
     """
 
-<<<<<<< HEAD
     CONNECTIONS_SELF = LinkedIn.LI_API_URL + "/v1/people/~/connections"
     def __init__(self, linkedin):
         LinkedInApi.__init__(self, linkedin)

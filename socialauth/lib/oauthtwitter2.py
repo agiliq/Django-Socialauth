@@ -22,8 +22,8 @@ TWITTER_CREDENTIALS_URL = 'https://twitter.com/account/verify_credentials.json'
 def connection():
     try:return connection._connection
     except AttributeError:
-	connection._connection = httplib.HTTPSConnection('twitter.com')
-	return connection._connection
+	   connection._connection = httplib.HTTPSConnection(TWITTER_URL)
+	   return connection._connection
 
 def oauth_response(req):
     connection().request(req.http_method, req.to_url())
@@ -31,8 +31,8 @@ def oauth_response(req):
 
 class TwitterOAuthClient(oauth.OAuthClient):
     def __init__(self, consumer_key, consumer_secret, request_token_url=REQUEST_TOKEN_URL, access_token_url=ACCESS_TOKEN_URL, authorization_url=AUTHORIZATION_URL):
-	self.consumer_secret = consumer_secret
-	self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.consumer_key = consumer_key
         self.consumer = oauth.OAuthConsumer(consumer_key, consumer_secret)
         self.signature_method = oauth.OAuthSignatureMethod_HMAC_SHA1()
         self.request_token_url = request_token_url
@@ -50,17 +50,18 @@ class TwitterOAuthClient(oauth.OAuthClient):
         return oauth_request.to_url()
 
     def fetch_access_token(self, token, verifier):
-	oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, verifier=verifier, http_url=self.access_token_url)
-	oauth_request.sign_request(self.signature_method, self.consumer, token)
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, verifier=verifier, http_url=self.access_token_url)
+        oauth_request.sign_request(self.signature_method, self.consumer, token)
         return oauth.OAuthToken.from_string(oauth_response(oauth_request))
 
     def get_user_info(self, token):
         try:
-	    oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=TWITTER_CREDENTIALS_URL)
-	    oauth_request.sign_request(self.signature_method, self.consumer, token)
-	    return User.NewFromJsonDict(json.loads(oauth_response(oauth_request)))
-	except: pass
-	return None
+	       oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=TWITTER_CREDENTIALS_URL)
+	       oauth_request.sign_request(self.signature_method, self.consumer, token)
+	       return User.NewFromJsonDict(json.loads(oauth_response(oauth_request)))
+        except:
+            pass
+        return None
 	
     def access_resource(self, oauth_request):
         # via post body

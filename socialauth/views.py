@@ -50,7 +50,7 @@ FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 
 def del_dict_key(src_dict, key):
     if key in src_dict:
-	del src_dict[key]
+        del src_dict[key]
 
 def login_page(request):
     return render_to_response('socialauth/login_page.html', context_instance=RequestContext(request))
@@ -84,11 +84,11 @@ def linkedin_login_done(request):
     if user:
         login(request, user)
     else:
-	# We were not able to authenticate user
-	# Redirect to login page
-	del_dict_key(request.session, 'access_token')
-	del_dict_key(request.session, 'request_token')
-	return HttpResponseRedirect(reverse('socialauth_login_page'))
+        # We were not able to authenticate user
+        # Redirect to login page
+        del_dict_key(request.session, 'access_token')
+        del_dict_key(request.session, 'request_token')
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, user is now logged in
     return HttpResponseRedirect(LOGIN_REDIRECT_URL)
@@ -125,9 +125,9 @@ def twitter_login_done(request):
     # If the token from session and token from twitter does not match
     # means something bad happened to tokens
     if token.key != request.GET.get('oauth_token', 'no-token'):
-	    del_dict_key(request.session, 'request_token')
-	    # Redirect the user to the login page
-	    return HttpResponseRedirect(reverse("socialauth_login_page"))
+        del_dict_key(request.session, 'request_token')
+        # Redirect the user to the login page
+        return HttpResponseRedirect(reverse("socialauth_login_page"))
 
     try:
         twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
@@ -142,16 +142,16 @@ def twitter_login_done(request):
     if user:
         login(request, user)
     else:
-    	# We were not able to authenticate user
-    	# Redirect to login page
-    	del_dict_key(request.session, 'access_token')
-    	del_dict_key(request.session, 'request_token')
-    	return HttpResponseRedirect(reverse('socialauth_login_page'))
+        # We were not able to authenticate user
+        # Redirect to login page
+        del_dict_key(request.session, 'access_token')
+        del_dict_key(request.session, 'request_token')
+        return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     # authentication was successful, use is now logged in
     next = request.session.get('twitter_login_next', None)
     if next:
-        del request.session['twitter_login_next']
+        del_dict_key(request.session, 'twitter_login_next')
         return HttpResponseRedirect(next)
     else:
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)
@@ -205,11 +205,11 @@ def openid_done(request, provider=None):
                 openid_next = request.session.get('openid_next')
                 if len(openid_next.strip()) >  0 :
                     return HttpResponseRedirect(openid_next)
-	    return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+            return HttpResponseRedirect(LOGIN_REDIRECT_URL)
             # redirect_url = reverse('socialauth_editprofile')
             # return HttpResponseRedirect(redirect_url)
         else:
-	    return HttpResponseRedirect(LOGIN_URL)
+	        return HttpResponseRedirect(LOGIN_URL)
     else:
         return HttpResponseRedirect(LOGIN_URL)
 
@@ -234,8 +234,8 @@ def facebook_login_done(request):
     user = authenticate(request=request)
 
     if not user:
-        del request.COOKIES[FACEBOOK_API_KEY + '_session_key']
-        del request.COOKIES[FACEBOOK_API_KEY + '_user']
+        request.COOKIES.pop(FACEBOOK_API_KEY + '_session_key', None)
+        request.COOKIES.pop(FACEBOOK_API_KEY + '_user', None)
 
         # TODO: maybe the project has its own login page?
         logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")

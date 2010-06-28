@@ -20,7 +20,6 @@ FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
 FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
 
 # Linkedin
-
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 
@@ -115,8 +114,7 @@ class OpenIdBackend:
             return None
 
 class LinkedInBackend:
-    """LinkedInBackend for authentication
-    """
+    """LinkedInBackend for authentication"""
     def authenticate(self, linkedin_access_token, user=None):
         linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
         # get their profile
@@ -150,11 +148,9 @@ class LinkedInBackend:
             return None
 
 class TwitterBackend:
-    """TwitterBackend for authentication
-    """
+    """TwitterBackend for authentication"""
     def authenticate(self, twitter_access_token, user=None):
-        '''authenticates the token by requesting user information from twitter
-        '''
+        '''authenticates the token by requesting user information from twitter'''
         # twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, twitter_access_token)
         twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
         try:
