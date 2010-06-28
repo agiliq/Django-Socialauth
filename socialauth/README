@@ -18,7 +18,7 @@ In particular it allows logging in via
 
 Libs you need to install
 1. python-openid (easy_install)
-2. Yadis (easy_install)
+2. Yadis (easy_install)(Not required for python-openid > 2.0.0)
 3. python-openauth(easy_install)
 
 
