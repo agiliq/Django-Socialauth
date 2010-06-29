@@ -1,5 +1,5 @@
 from selenium import selenium
-import unittest, time, re
+import unittest
 from django.contrib.auth.models import User
 
 from test_data import *

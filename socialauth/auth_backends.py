@@ -6,10 +6,8 @@ import facebook
 import urllib
 from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
-from socialauth.lib.facebook import get_user_info, get_facebook_signature
 from socialauth.lib.linkedin import *
 
-from datetime import datetime
 import random
 
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')

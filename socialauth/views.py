@@ -1,36 +1,23 @@
 
 import logging
 import urllib
-import random
-from re import escape
-from datetime import datetime
-from cgi import parse_qs
 from oauth import oauth
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.contrib.auth.models import UserManager, User
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
-from django.utils.translation import ugettext as _
 
-try:
-    import json #Works with Python 2.6
-except ImportError:
-    from django.utils import simplejson as json
-
-from socialauth.models import OpenidProfile, AuthMeta, FacebookUserProfile, TwitterUserProfile, LinkedInUserProfile
+from socialauth.models import AuthMeta
 from socialauth.forms import EditProfileForm
 
 from openid_consumer.views import begin
 from socialauth.lib import oauthtwitter2 as oauthtwitter
-from socialauth.lib import oauthyahoo, oauthgoogle
-from socialauth.lib.facebook import get_user_info, get_facebook_signature, \
-                            get_friends, get_friends_via_fql
+                            
 from socialauth.lib.linkedin import *
 
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')

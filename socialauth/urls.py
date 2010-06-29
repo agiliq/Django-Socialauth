@@ -1,8 +1,6 @@
 from django.conf.urls.defaults import *
-from openid_consumer.views import begin, complete, signout
+from openid_consumer.views import complete, signout
 from django.views.generic.simple import direct_to_template
-
-from django.conf import settings
 
 #Login Views
 urlpatterns = patterns('socialauth.views',
