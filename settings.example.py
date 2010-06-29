@@ -66,7 +66,9 @@ MIDDLEWARE_CLASSES = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "socialauth.context_processors.facebook_api_key",
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.media',
+    'socialauth.context_processors.facebook_api_key',
 )
 
 ROOT_URLCONF = 'urls'
@@ -93,7 +95,7 @@ LOGIN_REDIRECT_URL = '/login/done/'
 LOGOUT_REDIRECT_URL = '/'
 
 try:
-    from local_settings import *
+    from localsettings import *
 except ImportError:
     pass
 
