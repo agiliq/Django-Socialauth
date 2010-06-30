@@ -40,7 +40,7 @@ class OpenIdBackend:
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
-                firstname, lastname = request.openid.sreg.get('fullname', '').split(' ', 1)
+                firstname, lastname = request.openid.sreg.get('fullname', ' ').split(' ', 1)
             elif request.openid and request.openid.ax:
                 email = request.openid.ax.getSingle('http://axschema.org/contact/email')
                 if 'google' in provider:
