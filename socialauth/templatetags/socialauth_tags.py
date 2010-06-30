@@ -4,7 +4,7 @@ register = template.Library()
 
 @register.simple_tag
 def get_calculated_username(user):
-    if user.openidprofile_set.filter().count():
+    if hasattr(user, 'openidprofile_set') and user.openidprofile_set.filter().count():
         if user.openidprofile_set.filter(is_username_valid = True).count():
             return user.openidprofile_set.filter(is_username_valid = True)[0].user.username
         else:
