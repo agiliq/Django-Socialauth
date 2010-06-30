@@ -12,6 +12,6 @@
     {% if request.user.username %}
         Comment as {% get_calculated_username request.user %} or <a href="{% url socialauth_social_logout %}">as another user</a>
     {% else %}
-        <a href='/'>Login to comment</a>
+        <a href='{% url socialauth_login_page %}?next={{ request.path }}'>Login to comment</a>
     {% endif %}
     {% render_comment_form for post %}

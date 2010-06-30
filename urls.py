@@ -9,8 +9,7 @@ urlpatterns = patterns('',
     (r'^accounts/', include('socialauth.urls')),
     (r'^admin/', admin.site.urls), 
     #(r'^$', leave_comment), 
-    (r'^$', 'socialauth.views.signin_complete'), 
-    (r'^comments/posted/$', 'example.views.comment_posted'),
+    (r'^$', 'socialauth.views.signin_complete'),
     (r'comments/', include('django.contrib.comments.urls')),
 )
 
