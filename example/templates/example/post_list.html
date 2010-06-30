@@ -1,11 +1,12 @@
 {% load comments %}
-
-{% for post in latest %}
+{{ latest }}
+{% for post in object_list %}
   <h2>{{ post }}</h2>
   <p>{{ post.post }}</p>
+  {% get_comment_count for post as comment_count %}
   <b>{{ post.author }}</b> wrote {{ post.post|wordcount }} words on {{ post.date|date }} at {{ post.date|time }}
   <br />
-  {% render_comment_list for post %}
-  <br />
-  {% render_comment_form for post %}
+  <a href='{{ post.id }}'>
+      {{ comment_count }} comments
+  </a>
 {% endfor %}
