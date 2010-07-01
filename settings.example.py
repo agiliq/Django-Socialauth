@@ -62,13 +62,15 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'openid_consumer.middleware.OpenIDMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     #'socialauth.middleware.FacebookConnectMiddleware'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
+    "socialauth.context_processors.facebook_api_key",
     'django.core.context_processors.media',
-    'socialauth.context_processors.facebook_api_key',
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.request",
 )
 
 ROOT_URLCONF = 'urls'
@@ -85,10 +87,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.comments',
     'socialauth',
     'openid_consumer',
     'commentor',
+    'example',
+    'example_comments',
 )
+
+COMMENTS_APP = 'example_comments'
 
 LOGIN_REDIRECT_URL = '/login/done/'
 

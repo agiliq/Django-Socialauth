@@ -1,6 +1,6 @@
 OPENID_REDIRECT_NEXT = '/accounts/openid/done/'
 
-OPENID_SREG = {"requred": "nickname, email",
+OPENID_SREG = {"requred": "nickname, email, fullname",
                "optional":"postcode, country",
                "policy_url": ""}
 
