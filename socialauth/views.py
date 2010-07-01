@@ -1,4 +1,3 @@
-
 import logging
 import urllib
 from oauth import oauth
@@ -40,7 +39,7 @@ def del_dict_key(src_dict, key):
         del src_dict[key]
 
 def login_page(request):
-    return render_to_response('socialauth/login_page.html', context_instance=RequestContext(request))
+    return render_to_response('socialauth/login_page.html', {'next': request.GET.get('next', LOGIN_REDIRECT_URL)}, context_instance=RequestContext(request))
 
 def linkedin_login(request):
     linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
@@ -144,6 +143,8 @@ def twitter_login_done(request):
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def openid_login(request):
+    if 'next' in request.GET:
+        request.session['openid_next'] = request.GET.get('next')
     if 'openid_identifier' in request.GET:
         user_url = request.GET.get('openid_identifier')
         request.session['openid_provider'] = user_url
