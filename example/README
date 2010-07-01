@@ -12,3 +12,6 @@ To use this app in your project:
     (r'^comments/post/', 'example_comments.views.post_comment'),
     (r'comments/', include('django.contrib.comments.urls')),
    to your urlpatterns
+4. Add
+     COMMENTS_APP = 'example_comments'
+   to your settings
