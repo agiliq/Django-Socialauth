@@ -143,8 +143,8 @@ def twitter_login_done(request):
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
 def openid_login(request):
-    if 'next' in request.GET:
-        request.session['openid_next'] = request.GET.get('next')
+    if 'openid_next' in request.GET:
+        request.session['openid_next'] = request.GET.get('openid_next')
     if 'openid_identifier' in request.GET:
         user_url = request.GET.get('openid_identifier')
         request.session['openid_provider'] = user_url
