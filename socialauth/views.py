@@ -286,9 +286,10 @@ def social_logout(request):
     # normal logout
     logout_response = logout(request)
     
-    if next in request.GET:
+    if 'next' in request.GET:
         return HttpResponseRedirect(request.GET.get('next'))
     elif getattr(settings, 'LOGOUT_REDIRECT_URL', None):
         return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
     else:
         return logout_response
+
