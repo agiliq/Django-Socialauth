@@ -71,11 +71,11 @@
 		{% endif %}
 		
 		<div id="linkedin">
-		  <a href="{% url socialauth_linkedin_login %}" id="linkedin_login_link" class="openid_large_btn linkedin"></a>
+		  <a href="{% url socialauth_linkedin_login %}?next={{ next }}" id="linkedin_login_link" class="openid_large_btn linkedin"></a>
 		</div>
 	  
 		<div id="twitter">
-		  <a href="{% url socialauth_twitter_login %}" id="twitter_login_link" class="openid_large_btn twitter"></a>
+		  <a href="{% url socialauth_twitter_login %}?next={{ next }}" id="twitter_login_link" class="openid_large_btn twitter"></a>
 		</div>
 	  
 		<!--<div id="yahoo">
