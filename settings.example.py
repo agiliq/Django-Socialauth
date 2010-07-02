@@ -97,7 +97,7 @@ INSTALLED_APPS = (
 
 COMMENTS_APP = 'example_comments'
 
-LOGIN_REDIRECT_URL = '/login/done/'
+LOGIN_REDIRECT_URL = '/'
 
 LOGOUT_REDIRECT_URL = '/'
 
