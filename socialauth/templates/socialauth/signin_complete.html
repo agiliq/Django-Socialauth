@@ -3,6 +3,6 @@
 {% block main_content %}
 
 You have signed in.<br/>
-<a href="{% url socialauth_social_logout %}">Logout</a>
+<a onclick="FB.logout(); window.location='{% url socialauth_social_logout %}';" href="#">Logout</a>
 
 {% endblock %}
