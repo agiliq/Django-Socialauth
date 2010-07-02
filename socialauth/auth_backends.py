@@ -61,13 +61,13 @@ class OpenIdBackend:
             
             name_count = User.objects.filter(username__startswith = nickname).count()
             if name_count:
-                username = '{0}{1}'.format(nickname, name_count + 1)
+                username = '%s%d' % (nickname, name_count + 1)
             else:
-                username = '{0}'.format(nickname)
+                username = '%s' % (nickname)
                 
             if email is None :
                 valid_username = False
-                email =  "{0}@socialauth".format(username)
+                email =  "%s@socialauth" % (username)
             else:
                 valid_username = True
             
@@ -130,7 +130,7 @@ class LinkedInBackend:
             if not user:
                 user = User(username =  username)
                 user.first_name, user.last_name = profile.firstname, profile.lastname
-                user.email = '{0}@socialauth'.format(username)
+                user.email = '%s@socialauth' % (username)
                 user.save()
                 
             userprofile = LinkedInUserProfile(user=user, linkedin_uid=profile.id)
