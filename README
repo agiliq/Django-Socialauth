@@ -17,11 +17,7 @@ In particular it allows logging in via
 4. OpenId
 
 Libs you need to install
-1. python-openid (easy_install python-openid)
-2. Yadis (easy_install python-yadis) (Not required for python-openid > 2.0.0)
-3. python-openauth(easy_install oauth)
-4. facebook python_sdk (http://github.com/facebook/python-sdk)
-5. pylinkedin (easy_install pylinkedin)
+See requirements.txt
 
 The API Keys are available from
 
