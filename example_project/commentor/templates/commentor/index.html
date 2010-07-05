@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+
+Enter Comment
+
+{% if user.is_authenticated %}
+
+<p>You are currently logged in as <strong>{{ user.username }}</strong></p>
+
+<form action="."  method="post">
+    {{ form }}
+    <input type="submit" name="comment_submit" value="Comment" />
+</form>
+<a href="{% url socialauth_social_logout %}">Logout</a>
+{% else %}
+
+<a href="{% url socialauth_login_page %}">Login</a>
+
+{% endif %}
+
+
+{% for comment in comments %}
+
+<p>
+    {{ comment.comment }}
+</p>
+
+{% endfor %}
+
+{% endblock %}
