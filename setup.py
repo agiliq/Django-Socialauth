@@ -16,8 +16,8 @@ setup(
                      'openid_consumer': ['locale/*/LC_MESSAGES/*.po']
                      },
     zip_safe = False,
-    author = "Usware Technologies",
+    author = "Agiliq Solutions",
     author_email = "info@uswaretech.com",
     description = "Allows logging via Facebook, Yahoo, Gmail, Twitter and Openid ",
-    url = "http://socialauth.uswaretech.net/",
+    url = "http://agiliq.com/",
 )
