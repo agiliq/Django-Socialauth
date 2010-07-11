@@ -192,7 +192,7 @@ class TwitterBackend:
                 user.save()
                 
             user_profile = TwitterUserProfile(user=user, screen_name=screen_name)
-            user_profile.access_token = twitter_access_token
+            user_profile.access_token = str(twitter_access_token)
             user_profile.url = userinfo.url
             user_profile.location = userinfo.location
             user_profile.description = userinfo.description
