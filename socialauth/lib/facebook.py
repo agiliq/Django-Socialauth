@@ -11,14 +11,14 @@ REST_SERVER = 'http://api.facebook.com/restserver.php'
 
 def get_user_info(api_key, api_secret, cookies):
     user_info_params = {
-                                        'method': 'Users.getInfo',
-                                        'api_key': api_key,
-                                        'call_id': time.time(),
-                                        'v': '1.0',
-                                        'uids': cookies[api_key + '_user'],
-                                        'fields': 'uid,first_name,last_name,pic_small, name, current_location',
-                                        'format': 'json',
-                                    }
+                        'method': 'Users.getInfo',
+                        'api_key': api_key,
+                        'call_id': time.time(),
+                        'v': '1.0',
+                        'uids': cookies[api_key + '_user'],
+                        'fields': 'uid,first_name,last_name,pic_small, name, current_location',
+                        'format': 'json',
+                       }
 
     user_info_hash = get_facebook_signature(api_key, api_secret, user_info_params)
     user_info_params['sig'] = user_info_hash            

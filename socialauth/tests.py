@@ -12,7 +12,8 @@ class TwitterTester(unittest.TestCase):
     
     def testTwitter(self):
         sel = self.selenium
-        #Test that a user is created after logging in via Twitter for the first time.
+        #Test that a user is created after 
+        #    logging in via Twitter for the first time.
         initial_user_count = User.objects.count()
         sel.open("/accounts/login/")
         sel.click("link=Login via twitter")

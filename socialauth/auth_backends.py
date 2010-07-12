@@ -5,7 +5,8 @@ import facebook
 
 import urllib
 from socialauth.lib import oauthtwitter2 as oauthtwitter
-from socialauth.models import OpenidProfile as UserAssociation, TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
+from socialauth.models import OpenidProfile as UserAssociation, \
+TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
 from socialauth.lib.linkedin import *
 
 import random
@@ -40,26 +41,42 @@ class OpenIdBackend:
             if request.openid and request.openid.sreg:
                 email = request.openid.sreg.get('email')
                 nickname = request.openid.sreg.get('nickname')
-                firstname, lastname = request.openid.sreg.get('fullname', ' ').split(' ', 1)
+                firstname, lastname = (request.openid.sreg
+                                       .get('fullname', ' ')
+                                       .split(' ', 1))
             elif request.openid and request.openid.ax:
-                email = request.openid.ax.getSingle('http://axschema.org/contact/email')
+                email = \
+                    (request.openid.ax
+                     .getSingle('http://axschema.org/contact/email'))
                 if 'google' in provider:
                     ax_schema = OPENID_AX_PROVIDER_MAP['Google']
-                    firstname = request.openid.ax.getSingle(ax_schema['firstname'])
-                    lastname = request.openid.ax.getSingle(ax_schema['lastname'])
+                    firstname = (request.openid.ax
+                                 .getSingle(ax_schema['firstname']))
+                    lastname = (request.openid.ax
+                                .getSingle(ax_schema['lastname']))
                     nickname = email.split('@')[0]
                 else:
                     ax_schema = OPENID_AX_PROVIDER_MAP['Default']
                     try:
-                        nickname = request.openid.ax.getSingle(ax_schema['nickname']) #should be replaced by correct schema
-                        firstname, lastname = request.openid.ax.getSingle(ax_schema['fullname']).split(' ', 1)
+                         #should be replaced by correct schema
+                        nickname = (request.openid.ax
+                                    .getSingle(ax_schema['nickname']))
+                        (firstname, 
+                            lastname) = (request.openid.ax
+                                         .getSingle(ax_schema['fullname'])
+                                         .split(' ', 1))
                     except:
                         pass
 
             if nickname is None :
-                nickname =  ''.join([random.choice('abcdefghijklmnopqrstuvwxyz') for i in xrange(10)])
+                nickname =  ''.join(
+                                    [random
+                                     .choice('abcdefghijklmnopqrstuvwxyz')
+                                     for i in xrange(10)])
             
-            name_count = User.objects.filter(username__startswith = nickname).count()
+            name_count = (User.objects
+                          .filter(username__startswith = nickname)
+                          .count())
             if name_count:
                 username = '%s%d' % (nickname, name_count + 1)
             else:
@@ -91,17 +108,27 @@ class OpenIdBackend:
             assoc.save()
             
             #Create AuthMeta
-            # auth_meta = AuthMeta(user=user, provider=provider, provider_model='OpenidProfile', provider_id=assoc.pk)
+            # auth_meta = 
+            #             AuthMeta(user=user, 
+            #                        provider=provider, 
+            #                        provider_model='OpenidProfile', 
+            #                        provider_id=assoc.pk)
             auth_meta = AuthMeta(user=user, provider=provider)
             auth_meta.save()
             return user
         
     def GooglesAX(self,openid_response):
-        email = openid_response.ax.getSingle('http://axschema.org/contact/email')
-        firstname = openid_response.ax.getSingle('http://axschema.org/namePerson/first')
-        lastname = openid_response.ax.getSingle('http://axschema.org/namePerson/last')
-        # country = openid_response.ax.getSingle('http://axschema.org/contact/country/home')
-        # language = openid_response.ax.getSingle('http://axschema.org/pref/language')
+        email = (openid_response.ax
+                 .getSingle('http://axschema.org/contact/email'))
+        firstname = (openid_response.ax
+                     .getSingle('http://axschema.org/namePerson/first'))
+        lastname = (openid_response.ax
+                    .getSingle('http://axschema.org/namePerson/last'))
+        # country = 
+        #    (openid_response.ax
+        #        .getSingle('http://axschema.org/contact/country/home'))
+        # language = 
+        #    openid_response.ax.getSingle('http://axschema.org/pref/language')
         return locals()
   
     def get_user(self, user_id):
@@ -117,10 +144,12 @@ class LinkedInBackend:
         linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
         # get their profile
         
-        profile = ProfileApi(linkedin).getMyProfile(access_token = linkedin_access_token)
+        profile = (ProfileApi(linkedin)
+                   .getMyProfile(access_token = linkedin_access_token))
 
         try:
-            user_profile = LinkedInUserProfile.objects.get(linkedin_uid = profile.id)
+            user_profile = (LinkedInUserProfile.objects
+                            .get(linkedin_uid = profile.id))
             user = user_profile.user
             return user
         except LinkedInUserProfile.DoesNotExist:
@@ -129,11 +158,13 @@ class LinkedInBackend:
 
             if not user:
                 user = User(username =  username)
-                user.first_name, user.last_name = profile.firstname, profile.lastname
+                user.first_name, user.last_name = (profile.firstname
+                                                   , profile.lastname)
                 user.email = '%s@socialauth' % (username)
                 user.save()
                 
-            userprofile = LinkedInUserProfile(user=user, linkedin_uid=profile.id)
+            userprofile = LinkedInUserProfile(user=user, 
+                                              linkedin_uid=profile.id)
             userprofile.save()
             
             auth_meta = AuthMeta(user=user, provider='LinkedIn').save()
@@ -148,20 +179,29 @@ class LinkedInBackend:
 class TwitterBackend:
     """TwitterBackend for authentication"""
     def authenticate(self, twitter_access_token, user=None):
-        '''authenticates the token by requesting user information from twitter'''
-        # twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, twitter_access_token)
-        twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+        '''
+            authenticates the token by requesting user information
+            from twitter
+        '''
+        # twitter = oauthtwitter.OAuthApi(TWITTER_CONSUMER_KEY,
+        #                                  TWITTER_CONSUMER_SECRET,
+        #                                  twitter_access_token)
+        twitter = oauthtwitter.TwitterOAuthClient(
+                                            settings.TWITTER_CONSUMER_KEY,
+                                            settings.TWITTER_CONSUMER_SECRET)
         try:
             userinfo = twitter.get_user_info(twitter_access_token)
         except:
-            # If we cannot get the user information, user cannot be authenticated
+            # If we cannot get the user information, 
+            # user cannot be authenticated
             raise
 
         screen_name = userinfo.screen_name
         twitter_id = userinfo.id
         
         try:
-            user_profile = TwitterUserProfile.objects.get(screen_name=screen_name)
+            user_profile = (TwitterUserProfile.objects
+                            .get(screen_name=screen_name))
             
             # Update Twitter Profile
             user_profile.url = userinfo.url
@@ -175,7 +215,9 @@ class TwitterBackend:
         except TwitterUserProfile.DoesNotExist:
             # Create new user
             if not user:
-                same_name_count = User.objects.filter(username__startswith=screen_name).count()
+                same_name_count = (User.objects
+                                   .filter(username__startswith=screen_name)
+                                   .count())
                 if same_name_count:
                     username = '%s%s' % (screen_name, same_name_count + 1)
                 else:
@@ -183,7 +225,8 @@ class TwitterBackend:
                 user = User(username=username)
                 name_data = userinfo.name.split()
                 try:
-                    first_name, last_name = name_data[0], ' '.join(name_data[1:])
+                    first_name, last_name = (name_data[0], 
+                                            ' '.join(name_data[1:]))
                 except:
                     first_name, last_name =  screen_name, ''
                 user.first_name, user.last_name = first_name, last_name
@@ -191,7 +234,8 @@ class TwitterBackend:
                 #user.email = '%s@example.twitter.com'%(userinfo.screen_name)
                 user.save()
                 
-            user_profile = TwitterUserProfile(user=user, screen_name=screen_name)
+            user_profile = TwitterUserProfile(user=user, 
+                                              screen_name=screen_name)
             user_profile.access_token = str(twitter_access_token)
             user_profile.url = userinfo.url
             user_profile.location = userinfo.location
@@ -211,8 +255,9 @@ class TwitterBackend:
         
 class FacebookBackend:
     def authenticate(self, request, user=None):
-        cookie = facebook.get_user_from_cookie(request.COOKIES, FACEBOOK_APP_ID, FACEBOOK_SECRET_KEY)
-
+        cookie = facebook.get_user_from_cookie(request.COOKIES,
+                                               FACEBOOK_APP_ID,
+                                               FACEBOOK_SECRET_KEY)
         if cookie:
             uid = cookie['uid']
             access_token = cookie['access_token']
@@ -222,10 +267,13 @@ class FacebookBackend:
             params = {}
             params["client_id"] = FACEBOOK_APP_ID
             params["client_secret"] = FACEBOOK_SECRET_KEY
-            params["redirect_uri"] = reverse("socialauth_facebook_login_done")[1:] 
+            params["redirect_uri"] = reverse(
+                                              "socialauth_facebook_login_done"
+                                              )[1:]
             params["code"] = request.GET.get('code', '')
 
-            url = "https://graph.facebook.com/oauth/access_token?"+urllib.urlencode(params)
+            url = ("https://graph.facebook.com/oauth/access_token?"
+                   +urllib.urlencode(params))
             from cgi import parse_qs
             userdata = urllib.urlopen(url).read()
             res_parse_qs = parse_qs(userdata)

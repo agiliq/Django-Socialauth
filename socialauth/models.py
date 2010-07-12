@@ -32,7 +32,9 @@ class LinkedInUserProfile(models.Model):
     """
     For users who login via Linkedin.
     """
-    linkedin_uid = models.CharField(max_length = 50, unique = True, db_index=True)
+    linkedin_uid = models.CharField(max_length=50,
+                                    unique=True,
+                                    db_index=True)
 
     user = models.ForeignKey(User, related_name='linkedin_profiles')
     headline = models.CharField(max_length=120, blank=True, null=True)
@@ -41,7 +43,10 @@ class LinkedInUserProfile(models.Model):
     industry = models.CharField(max_length=255, blank=True, null=True)
     profile_image_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
-    access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
+    access_token = models.CharField(max_length=255,
+                                    blank=True,
+                                    null=True,
+                                    editable=False)
 
     def __unicode__(self):
         return "%s's profile" % self.user
@@ -50,10 +55,15 @@ class TwitterUserProfile(models.Model):
     """
     For users who login via Twitter.
     """
-    screen_name = models.CharField(max_length = 200, unique = True, db_index = True)
+    screen_name = models.CharField(max_length=200,
+                                   unique=True,
+                                   db_index=True)
     
     user = models.ForeignKey(User, related_name='twitter_profiles')
-    access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
+    access_token = models.CharField(max_length=255,
+                                    blank=True,
+                                    null=True,
+                                    editable=False)
     profile_image_url = models.URLField(blank=True, null=True)
     location = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
@@ -67,7 +77,9 @@ class FacebookUserProfile(models.Model):
     """
     For users who login via Facebook.
     """
-    facebook_uid = models.CharField(max_length = 20, unique = True, db_index = True)
+    facebook_uid = models.CharField(max_length=20,
+                                    unique=True,
+                                    db_index=True)
     
     user = models.ForeignKey(User, related_name='facebook_profiles')
     profile_image_url = models.URLField(blank=True, null=True)

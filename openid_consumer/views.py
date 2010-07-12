@@ -51,7 +51,8 @@ def is_valid_next_url(next):
     # path, not a complete URL.
     return bool(next_url_re.match(next))
 
-def begin(request, redirect_to=None, on_failure=None, user_url=None, template_name='openid_consumer/signin.html'):
+def begin(request, redirect_to=None, on_failure=None, user_url=None,
+          template_name='openid_consumer/signin.html'):
     on_failure = on_failure or default_on_failure
     trust_root = getattr(
         settings, 'OPENID_TRUST_ROOT', get_url_host(request) + '/'
@@ -65,7 +66,10 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
         get_full_url(request).split('?')[0] + 'complete/'
     )
     # In case they were lazy...
-    if not redirect_to.startswith('http://') or redirect_to.startswith('https://'):
+    if (not
+            redirect_to.startswith('http://')
+        or
+            redirect_to.startswith('https://')):
         redirect_to =  get_url_host(request) + redirect_to
     
     if request.GET.get('next') and is_valid_next_url(request.GET['next']):
@@ -111,14 +115,17 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
                 s.policy_url = sreg[sarg]
             else:
                 for v in sreg[sarg].split(','):
-                    s.requestField(field_name=v.lower().lstrip(), required=(sarg.lower().lstrip() == "required"))
-        auth_request.addExtension(s)  
+                    s.requestField(field_name=v.lower().lstrip(),
+                                   required=(sarg.lower().lstrip() ==
+                                             "required"))
+        auth_request.addExtension(s)
     
     pape = getattr(settings, 'OPENID_PAPE', False)
 
     if pape:
         if openid.__version__ <= '2.0.0' and openid.__version__ >= '2.1.0':
-            raise ImportError, 'For pape extension you need python-openid 2.1.0 or newer'
+            raise (ImportError, 
+                   'For pape extension you need python-openid 2.1.0 or newer')
         p = PapeRequest()
         for parg in pape:
             if parg.lower().strip() == 'policy_list':
@@ -130,21 +137,28 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None, template_na
     
     OPENID_AX_PROVIDER_MAP = getattr(settings, 'OPENID_AX_PROVIDER_MAP', {})
     
-    openid_provider = 'Google' if 'google' in request.session.get('openid_provider', '') else 'Default'
+    openid_provider = ('Google' if 
+                       'google' in request.session.get('openid_provider', '')
+                       else 'Default')
     ax = OPENID_AX_PROVIDER_MAP.get(openid_provider)
     
     if ax:
         axr = AXFetchRequest()
         for attr_name, attr_url in ax.items():
-            # axr.add(AttrInfo(i['type_uri'], i['count'], i['required'], i['alias']))
-            axr.add(AttrInfo(attr_url, required=True)) # setting all as required attrs
+            # axr.add(AttrInfo(i['type_uri'], 
+            #    i['count'], i['required'], 
+            #    i['alias']))
+            
+            # setting all as required attrs
+            axr.add(AttrInfo(attr_url, required=True))
         auth_request.addExtension(axr)
     
     redirect_url = auth_request.redirectURL(trust_root, redirect_to)
     
     return HttpResponseRedirect(redirect_url)
 
-def complete(request, on_success=None, on_failure=None, failure_template='openid_consumer/failure.html'):
+def complete(request, on_success=None, on_failure=None, 
+             failure_template='openid_consumer/failure.html'):
     
     on_success = on_success or default_on_success
     on_failure = on_failure or default_on_failure
@@ -154,18 +168,22 @@ def complete(request, on_success=None, on_failure=None, failure_template='openid
     #for r in request.GET.items():
     #    print r
 
-    # JanRain library raises a warning if passed unicode objects as the keys, 
+    # JanRain library raises a warning if passed unicode objects as the keys,
     # so we convert to bytestrings before passing to the library
     query_dict = dict([
-        (k.encode('utf8'), v.encode('utf8')) for k, v in request.REQUEST.items()
+        (k.encode('utf8'),
+         v.encode('utf8')) for k, v in request.REQUEST.items()
     ])
 
     url = get_url_host(request) + request.path
     openid_response = consumer.complete(query_dict, url)
     if openid_response.status == SUCCESS:
-        return on_success(request, openid_response.identity_url, openid_response)
+        return on_success(request,
+                          openid_response.identity_url,
+                          openid_response)
     elif openid_response.status == CANCEL:
-        return on_failure(request, _('The request was cancelled'), failure_template)
+        return on_failure(request, 
+                          _('The request was cancelled'), failure_template)
     elif openid_response.status == FAILURE:
         return on_failure(request, openid_response.message, failure_template)
     elif openid_response.status == SETUP_NEEDED:
@@ -192,7 +210,8 @@ def default_on_success(request, identity_url, openid_response):
     
     return HttpResponseRedirect(next)
 
-def default_on_failure(request, message, template_name='openid_consumer/failure.html'):
+def default_on_failure(request, message,
+                       template_name='openid_consumer/failure.html'):
     return render(template_name, {
         'message': message
     }, 		RequestContext(request))

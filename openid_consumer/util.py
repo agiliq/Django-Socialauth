@@ -21,7 +21,8 @@ from django.conf import settings
 from models import Association, Nonce
 
 class OpenID:
-    def __init__(self, openid, issued, attrs=None, sreg=None, pape=None, ax=None):
+    def __init__(self, openid, issued,
+                  attrs=None, sreg=None, pape=None, ax=None):
         self.openid = openid
         self.issued = issued
         self.attrs = attrs or {}
@@ -96,7 +97,9 @@ class DjangoOpenIDStore(OpenIDStore):
             return False
         
         try:
-            nonce = Nonce( server_url=server_url, timestamp=timestamp, salt=salt)
+            nonce = Nonce(server_url=server_url,
+                          timestamp=timestamp,
+                          salt=salt)
             nonce.save()
         except:
             raise
@@ -110,7 +113,8 @@ class DjangoOpenIDStore(OpenIDStore):
 def from_openid_response(openid_response):
     issued = int(time.time())
 
-    openid = OpenID(openid_response.identity_url, issued, openid_response.signed_fields)
+    openid = OpenID(openid_response.identity_url, issued,
+                    openid_response.signed_fields)
 
     if getattr(settings, 'OPENID_PAPE', False):
         openid.pape = PapeResponse.fromSuccessResponse(openid_response)
