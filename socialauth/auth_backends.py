@@ -29,7 +29,7 @@ OPENID_AX_PROVIDER_MAP = getattr(settings, 'OPENID_AX_PROVIDER_MAP', {})
 class OpenIdBackend:
     def authenticate(self, openid_key, request, provider, user=None):
         try:
-            assoc = UserAssociation.objects.get(openid_key = openid_key)
+            assoc = UserAssociation.objects.get(openid_key=openid_key)
             return assoc.user
         except UserAssociation.DoesNotExist:
             #fetch if openid provider provides any simple registration fields
@@ -75,7 +75,7 @@ class OpenIdBackend:
                                      for i in xrange(10)])
             
             name_count = (User.objects
-                          .filter(username__startswith = nickname)
+                          .filter(username__startswith=nickname)
                           .count())
             if name_count:
                 username = '%s%d' % (nickname, name_count + 1)
@@ -133,7 +133,7 @@ class OpenIdBackend:
   
     def get_user(self, user_id):
         try:
-            user = User.objects.get(pk = user_id)
+            user = User.objects.get(pk=user_id)
             return user
         except User.DoesNotExist:
             return None
@@ -145,11 +145,11 @@ class LinkedInBackend:
         # get their profile
         
         profile = (ProfileApi(linkedin)
-                   .getMyProfile(access_token = linkedin_access_token))
+                   .getMyProfile(access_token=linkedin_access_token))
 
         try:
             user_profile = (LinkedInUserProfile.objects
-                            .get(linkedin_uid = profile.id))
+                            .get(linkedin_uid=profile.id))
             user = user_profile.user
             return user
         except LinkedInUserProfile.DoesNotExist:
@@ -157,7 +157,7 @@ class LinkedInBackend:
             username = 'LI:%s' % profile.id
 
             if not user:
-                user = User(username =  username)
+                user = User(username=username)
                 user.first_name, user.last_name = (profile.firstname
                                                    , profile.lastname)
                 user.email = '%s@socialauth' % (username)

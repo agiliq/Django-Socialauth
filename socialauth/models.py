@@ -7,19 +7,19 @@ class AuthMeta(models.Model):
         return '%s - %s' % (self.user, self.provider)
     
     user = models.ForeignKey(User)
-    provider = models.CharField(max_length = 200)
-    is_email_filled = models.BooleanField(default = False)
-    is_profile_modified = models.BooleanField(default = False)
+    provider = models.CharField(max_length=200)
+    is_email_filled = models.BooleanField(default=False)
+    is_profile_modified = models.BooleanField(default=False)
 
 class OpenidProfile(models.Model):
     """A class associating an User to a Openid"""
-    openid_key = models.CharField(max_length=200,unique=True, db_index = True)
+    openid_key = models.CharField(max_length=200,unique=True, db_index=True)
     
     user = models.ForeignKey(User, related_name='openid_profiles')
-    is_username_valid = models.BooleanField(default = False)
+    is_username_valid = models.BooleanField(default=False)
     #Values which we get from openid.sreg
     email = models.EmailField()
-    nickname = models.CharField(max_length = 100)
+    nickname = models.CharField(max_length=100)
     
     
     def __unicode__(self):

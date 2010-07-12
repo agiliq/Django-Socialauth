@@ -10,15 +10,15 @@ ALLOW_MULTIPLE_USERNAME_EDITS = getattr(settings,
 
 class EditProfileForm(forms.Form):
     email = forms.EmailField()
-    password = forms.CharField(max_length = 100, widget= forms.PasswordInput,
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput,
                                required=False,
                                help_text='If you give a password, you can \
                                login via a login form as well.')
-    password2 = forms.CharField(max_length = 100, widget= forms.PasswordInput,
+    password2 = forms.CharField(max_length=100, widget=forms.PasswordInput,
                                 required=False,
                                 label='Repeat password')
-    first_name = forms.CharField(max_length = 100, required=False)
-    last_name = forms.CharField(max_length = 100, required=False)
+    first_name = forms.CharField(max_length=100, required=False)
+    last_name = forms.CharField(max_length=100, required=False)
     
     def __init__(self, user=None, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)

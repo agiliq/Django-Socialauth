@@ -39,11 +39,13 @@ def del_dict_key(src_dict, key):
         del src_dict[key]
 
 def login_page(request):
-    return render_to_response('socialauth/login_page.html', {'next': request.GET.get('next', LOGIN_REDIRECT_URL)}, context_instance=RequestContext(request))
+    return render_to_response('socialauth/login_page.html', 
+                              {'next': request.GET.get('next', LOGIN_REDIRECT_URL)}, 
+                              context_instance=RequestContext(request))
 
 def linkedin_login(request):
     linkedin = LinkedIn(LINKEDIN_CONSUMER_KEY, LINKEDIN_CONSUMER_SECRET)
-    request_token = linkedin.getRequestToken(callback = request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
+    request_token = linkedin.getRequestToken(callback=request.build_absolute_uri(reverse('socialauth_linkedin_login_done')))
     request.session['linkedin_request_token'] = request_token
     signin_url = linkedin.getAuthorizeUrl(request_token)
     return HttpResponseRedirect(signin_url)
@@ -85,7 +87,7 @@ def twitter_login(request):
         request.session['twitter_login_next'] = next
     
     twitter = oauthtwitter.TwitterOAuthClient(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-    request_token = twitter.fetch_request_token(callback = request.build_absolute_uri(reverse('socialauth_twitter_login_done')))
+    request_token = twitter.fetch_request_token(callback=request.build_absolute_uri(reverse('socialauth_twitter_login_done')))
     request.session['request_token'] = request_token.to_string()
     signin_url = twitter.authorize_token_url(request_token)
     return HttpResponseRedirect(signin_url)
@@ -148,7 +150,7 @@ def openid_login(request):
     if 'openid_identifier' in request.GET:
         user_url = request.GET.get('openid_identifier')
         request.session['openid_provider'] = user_url
-        return begin(request, user_url = user_url)
+        return begin(request, user_url=user_url)
     else:
         request.session['openid_provider'] = 'Openid'
         return begin(request)
@@ -183,7 +185,7 @@ def openid_done(request, provider=None):
 	
         #authenticate and login
         try:
-            user = authenticate(openid_key=openid_key, request=request, provider = provider)
+            user = authenticate(openid_key=openid_key, request=request, provider=provider)
         except:
             user = None
 	    
@@ -270,7 +272,7 @@ def editprofile(request):
             request.user.message_set.create(message='Your profile has been updated.')
             return HttpResponseRedirect('.')
     if request.method == 'GET':
-        edit_form = EditProfileForm(user = request.user)
+        edit_form = EditProfileForm(user=request.user)
 
     payload = {'edit_form':edit_form}
     return render_to_response('socialauth/editprofile.html', payload, RequestContext(request))
