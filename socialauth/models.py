@@ -13,7 +13,7 @@ class AuthMeta(models.Model):
 
 class OpenidProfile(models.Model):
     """A class associating an User to a Openid"""
-    openid_key = models.CharField(max_length=200,unique=True, db_index=True)
+    openid_key = models.CharField(max_length=200, unique=True, db_index=True)
     
     user = models.ForeignKey(User, related_name='openid_profiles')
     is_username_valid = models.BooleanField(default=False)
