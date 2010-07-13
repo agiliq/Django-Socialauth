@@ -16,7 +16,7 @@ from socialauth.forms import EditProfileForm
 
 from openid_consumer.views import begin
 from socialauth.lib import oauthtwitter2 as oauthtwitter
-                            
+
 from socialauth.lib.linkedin import *
 
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
