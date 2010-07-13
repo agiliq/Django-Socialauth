@@ -287,11 +287,15 @@ def social_logout(request):
 
     # normal logout
     logout_response = logout(request)
-    
-    if 'next' in request.GET:
-        return HttpResponseRedirect(request.GET.get('next'))
-    elif getattr(settings, 'LOGOUT_REDIRECT_URL', None):
-        return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
-    else:
-        return logout_response
 
+    if 'next' in request.GET:
+        response = HttpResponseRedirect(request.GET.get('next'))
+    elif getattr(settings, 'LOGOUT_REDIRECT_URL', None):
+        response = HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
+    else:
+        response = logout_response
+
+    # Delete the facebook cookie
+    response.delete_cookie("fbs_" + FACEBOOK_APP_ID)
+
+    return response
