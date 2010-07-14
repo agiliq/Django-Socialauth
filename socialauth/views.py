@@ -182,13 +182,13 @@ def openid_done(request, provider=None):
     if hasattr(request,'openid') and request.openid:
         #check for already existing associations
         openid_key = str(request.openid)
-	
+    
         #authenticate and login
         try:
             user = authenticate(openid_key=openid_key, request=request, provider=provider)
         except:
             user = None
-	    
+        
         if user:
             login(request, user)
             if 'openid_next' in request.session :
@@ -199,7 +199,7 @@ def openid_done(request, provider=None):
             # redirect_url = reverse('socialauth_editprofile')
             # return HttpResponseRedirect(redirect_url)
         else:
-	        return HttpResponseRedirect(LOGIN_URL)
+            return HttpResponseRedirect(LOGIN_URL)
     else:
         return HttpResponseRedirect(LOGIN_URL)
 
