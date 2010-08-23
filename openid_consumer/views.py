@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-import md5, re, time, urllib
+import re, time, urllib
 
 import openid   
 if openid.__version__ < '2.0.0':
