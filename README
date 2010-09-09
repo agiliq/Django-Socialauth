@@ -19,7 +19,8 @@ In particular it allows logging in via
 Libs you need to install
 See requirements.txt
 use `pip install -r requirements.txt` to install all dependencies at once
-
+Note that you will probably require git and mercurial installed for pip to
+fetch the requirements.
 
 The API Keys are available from
 
