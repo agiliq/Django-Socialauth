@@ -270,7 +270,7 @@ class FacebookBackend:
             params["client_secret"] = FACEBOOK_SECRET_KEY
             params["redirect_uri"] = '%s://%s%s' % (
                          'https' if request.is_secure() else 'http',
-                         Site.objects.current_site().domain,
+                         Site.objects.get_current().domain,
                          reverse("socialauth_facebook_login_done"))
             params["code"] = request.GET.get('code', '')
 
