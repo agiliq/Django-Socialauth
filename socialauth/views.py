@@ -207,6 +207,10 @@ def facebook_login(request):
     """
     Facebook login page
     """
+    next = request.GET.get('next', None)
+    if next:
+        request.session['facebook_login_next'] = next
+    
     if request.REQUEST.get("device"):
         device = request.REQUEST.get("device")
     else:
@@ -235,8 +239,13 @@ def facebook_login_done(request):
     
     logging.debug("SOCIALAUTH: Successfully logged in with Facebook!")
     
-    if request.GET.get('next'):
-        return HttpResponseRedirect(request.GET.get('next'))
+    next = request.GET.get('next')
+    if not next:
+        next = request.session.get('facebook_login_next')
+        del_dict_key['facebook_login_next']
+    
+    if next:
+        return HttpResponseRedirect(next)
     else:
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)
 
