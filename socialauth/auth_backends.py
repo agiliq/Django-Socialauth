@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.site.models import Site
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import facebook
@@ -267,13 +268,14 @@ class FacebookBackend:
             params = {}
             params["client_id"] = FACEBOOK_APP_ID
             params["client_secret"] = FACEBOOK_SECRET_KEY
-            params["redirect_uri"] = reverse(
-                                              "socialauth_facebook_login_done"
-                                              )[1:]
+            params["redirect_uri"] = '%s://%s%s' % (
+                         'https' if request.is_secure() else 'http',
+                         Site.objects.current_site().domain,
+                         reverse("socialauth_facebook_login_done"))
             params["code"] = request.GET.get('code', '')
 
             url = ("https://graph.facebook.com/oauth/access_token?"
-                   +urllib.urlencode(params))
+                   + urllib.urlencode(params))
             from cgi import parse_qs
             userdata = urllib.urlopen(url).read()
             res_parse_qs = parse_qs(userdata)
@@ -281,9 +283,10 @@ class FacebookBackend:
             if not res_parse_qs.has_key('access_token'):
                 return None
                 
-            parse_data = res_parse_qs['access_token']
-            uid = parse_data['uid'][-1]
-            access_token = parse_data['access_token'][-1]
+            access_token = res_parse_qs['access_token'][-1]
+            
+            graph = facebook.GraphAPI(access_token)
+            uid = graph.get_object('me')['id']
             
         try:
             fb_user = FacebookUserProfile.objects.get(facebook_uid=uid)
