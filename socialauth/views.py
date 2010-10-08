@@ -242,7 +242,7 @@ def facebook_login_done(request):
     next = request.GET.get('next')
     if not next:
         next = request.session.get('facebook_login_next')
-        del_dict_key['facebook_login_next']
+        del_dict_key(request.session, 'facebook_login_next')
     
     if next:
         return HttpResponseRedirect(next)
