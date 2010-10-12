@@ -3,13 +3,14 @@ What it does.
 
 #. Allow logging in via various providers.
 #. Import contacts from various third party sites, to find out which of your
-friends already use our service.
+   friends already use our service.
 
 Logging In
 ----------
 
 This is a application to enable authentication via various third party sites.
 In particular it allows logging in via
+
 #. Twitter
 #. Gmail
 #. Facebook
@@ -32,17 +33,19 @@ The API Keys are available from
 How it works.
 --------------
 
-* Openid: Users need to provide their openid providers. Talk to the providers and
-login.
-* Yahoo: Yahoo is an openid provider. Talk to Yahoo endpoints. (Endpoint: http://yahoo.com)
-* Google: Google is a provider. Talk to them. (Endpoint: https://www.google.com/accounts/o8/id)
-* Facebook: Facebook connect provides authentication framework.
-* Twitter: We use Twitter Oauth for authentication. In theory, Oauth shouldn't be
-used for authentication. (It is an autorisation framework, not an authentication one),
-In practice it works pretty well. Once you have an access_token, and a name, essentially
-authenticated.
+* **Openid**: Users need to provide their openid providers. Talk to the providers and
+  login.
+* **Yahoo**: Yahoo is an openid provider. Talk to Yahoo endpoints. (Endpoint: http://yahoo.com)
+* **Google**: Google is a provider. Talk to them. (Endpoint: https://www.google.com/accounts/o8/id)
+* **Facebook**: Facebook connect provides authentication framework.
+* **Twitter**: We use Twitter Oauth for authentication. In theory, Oauth shouldn't be
+  used for authentication. (It is an autorisation framework, not an authentication one),
+  In practice it works pretty well. Once you have an access_token, and a name, essentially
+  authenticated.
 
 References
+----------
+
 #. http://openid.net/developers/
 #. http://developer.yahoo.com/openid/
 #. http://code.google.com/apis/accounts/docs/OpenID.html
@@ -63,11 +66,11 @@ How it works.
 
 #. For all providers(except Facebook) there are two urls and views. (start and done)
 #. Start sets up the required tokens, and redirects and hands off to the correct
-provider.
+   provider.
 #. Provider handles authentication on their ends, and hands off to Us, providing
-authorization tokens.
+   authorization tokens.
 #. In done, we check if the user with these details already exists, if yes, we
-log them in. Otherwise we create a new user, and log them in.
+   log them in. Otherwise we create a new user, and log them in.
 
 For all of these, we use standard django authenication system, with custom
 auth_backends, hence all existing views, and decorators as login_required
@@ -82,7 +85,7 @@ Urls
 * /gmail_login/ AND /gmail_login/done/
 * /twitter_login/ AND /twitter_login/done/
 * /facebook_login/done/ We dont have a start url here, as the starting tokens are
-set in a popup.
+  set in a popup.
 
 Implementation
 ---------------
@@ -91,4 +94,3 @@ Implementation
 #. Get tokens and populate in localsettings.py
 #. Set the token callback urls correctly at Twitter and Facebook.
 #. Set the authentication_backends to the providers you are using.
-
