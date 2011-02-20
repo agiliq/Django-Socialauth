@@ -28,6 +28,10 @@ LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
 OPENID_AX_PROVIDER_MAP = getattr(settings, 'OPENID_AX_PROVIDER_MAP', {})
 
 class OpenIdBackend:
+    supports_object_permissions = False
+    supports_anonymous_user = False
+    supports_inactive_user = False
+
     def authenticate(self, openid_key, request, provider, user=None):
         try:
             assoc = UserAssociation.objects.get(openid_key=openid_key)
