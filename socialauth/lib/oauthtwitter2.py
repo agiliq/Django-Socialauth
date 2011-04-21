@@ -19,15 +19,15 @@ TWITTER_CREDENTIALS_URL = 'https://twitter.com/account/verify_credentials.json'
 #CONSUMER_KEY = settings.TWITTER_CONSUMER_KEY
 #CONSUMER_SECRET = settings.TWITTER_CONSUMER_SECRET
 
-def connection():
-    try:return connection._connection
-    except AttributeError:
-	   connection._connection = httplib.HTTPSConnection(TWITTER_URL)
-	   return connection._connection
+def get_connection():
+    return httplib.HTTPSConnection(TWITTER_URL)
 
 def oauth_response(req):
-    connection().request(req.http_method, req.to_url())
-    return connection().getresponse().read()
+    connection = get_connection()
+    connection.request(req.http_method, req.to_url())
+    response = connection.getresponse().read()
+    connection.close()
+    return response
 
 class TwitterOAuthClient(oauth.OAuthClient):
     def __init__(self, consumer_key, consumer_secret, request_token_url=REQUEST_TOKEN_URL, access_token_url=ACCESS_TOKEN_URL, authorization_url=AUTHORIZATION_URL):
@@ -69,9 +69,11 @@ class TwitterOAuthClient(oauth.OAuthClient):
         # via post body
         # -> some protected resources
         headers = {'Content-Type' :'application/x-www-form-urlencoded'}
-        self.connection.request('POST', RESOURCE_URL, body=oauth_request.to_postdata(), headers=headers)
-        response = self.connection.getresponse()
-        return response.read()
+        connection = get_connection()
+        connection.request('POST', RESOURCE_URL, body=oauth_request.to_postdata(), headers=headers)
+        response = connection.getresponse().read()
+        connection.close()
+        return response
 
 def run_example():
 
