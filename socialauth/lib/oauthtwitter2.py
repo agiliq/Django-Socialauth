@@ -41,9 +41,10 @@ class TwitterOAuthClient(oauth.OAuthClient):
         self.authorization_url = authorization_url
         
     def fetch_request_token(self, callback):
-        token = oauth.OAuthToken(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
-        token.callback_confirmed = callback
-        return token
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, http_url=self.request_token_url,
+                                                                   callback=callback)
+        oauth_request.sign_request(self.signature_method, self.consumer, None)
+        return oauth.OAuthToken.from_string(oauth_response(oauth_request))
     
     def authorize_token_url(self, token, callback_url=None):
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=self.authorization_url,
@@ -52,9 +53,8 @@ class TwitterOAuthClient(oauth.OAuthClient):
         return oauth_request.to_url()
 
     def fetch_access_token(self, token, verifier):
-        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, verifier=verifier, http_url=self.access_token_url)
-        oauth_request.sign_request(self.signature_method, self.consumer, token)
-        return oauth.OAuthToken.from_string(oauth_response(oauth_request))
+        token = oauth.OAuthToken(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
+        return token
 
     def get_user_info(self, token):
         try:
