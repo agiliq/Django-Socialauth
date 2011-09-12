@@ -16,8 +16,9 @@ ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
 TWITTER_CREDENTIALS_URL = 'https://twitter.com/account/verify_credentials.json'
 
-#CONSUMER_KEY = settings.TWITTER_CONSUMER_KEY
-#CONSUMER_SECRET = settings.TWITTER_CONSUMER_SECRET
+assert hasattr(settings, 'TWITTER_ACCESS_TOKEN'), "The SocialAuth app requires Twitter OAuth Access Token to be specified. Edit your TWITTER_ACCESS_TOKEN settings and set it up."
+assert hasattr(settings, 'TWITTER_ACCESS_TOKEN_SECRET'), "The SocialAuth app requires Twitter OAuth Access Token Secret to be specified. Edit your TWITTER_ACCESS_TOKEN_SECRET settings and set it up."
+
 
 def get_connection():
     return httplib.HTTPSConnection(TWITTER_URL)
@@ -40,10 +41,9 @@ class TwitterOAuthClient(oauth.OAuthClient):
         self.authorization_url = authorization_url
         
     def fetch_request_token(self, callback):
-        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, http_url=self.request_token_url,
-                                                                   callback=callback)
-        oauth_request.sign_request(self.signature_method, self.consumer, None)
-        return oauth.OAuthToken.from_string(oauth_response(oauth_request))
+        token = oauth.OAuthToken(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
+        token.callback_confirmed = callback
+        return token
     
     def authorize_token_url(self, token, callback_url=None):
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer, token=token, http_url=self.authorization_url,
