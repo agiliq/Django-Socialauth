@@ -7,10 +7,10 @@ from twitter import User
 from django.utils import simplejson as json
 
 TWITTER_URL = 'twitter.com'
-REQUEST_TOKEN_URL = 'https://twitter.com/oauth/request_token'
-ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
-AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
-TWITTER_CREDENTIALS_URL = 'https://twitter.com/account/verify_credentials.json'
+REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
+ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
+AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
+TWITTER_CREDENTIALS_URL = 'https://api.twitter.com/1/account/verify_credentials.json'
 
 
 def get_connection():
