@@ -19,7 +19,12 @@ def get_connection():
 
 def oauth_response(req):
     connection = get_connection()
-    connection.request(req.http_method, req.to_url())
+    connection.set_debuglevel(12)
+    if req.get_normalized_http_method() == 'POST':
+        connection.request('POST', req.get_normalized_http_url(),
+            req.to_postdata())
+    else:
+        connection.request('GET', req.to_url())
     response = connection.getresponse().read()
     connection.close()
     return response
@@ -41,6 +46,7 @@ class TwitterOAuthClient(oauth.OAuthClient):
             http_url=self.request_token_url,
             callback=callback
         )
+        oauth_request.http_method = 'POST'
         oauth_request.sign_request(self.signature_method, self.consumer, None)
         return oauth.OAuthToken.from_string(oauth_response(oauth_request))
 
@@ -61,6 +67,7 @@ class TwitterOAuthClient(oauth.OAuthClient):
             verifier=verifier,
             http_url=self.access_token_url
         )
+        oauth_request.http_method = 'POST'
         oauth_request.sign_request(self.signature_method, self.consumer, token)
         return oauth.OAuthToken.from_string(oauth_response(oauth_request))
 
