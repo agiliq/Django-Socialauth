@@ -1,33 +1,21 @@
-import httplib
 import time
+from urllib2 import Request, urlopen
 
-import oauth.oauth as oauth
+import oauth1 as oauth
 from twitter import User
 
 from django.utils import simplejson as json
 
 TWITTER_URL = 'twitter.com'
 REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
-ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
+ACCESS_TOKEN_URL = 'https//api.twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
 TWITTER_CREDENTIALS_URL = 'https://api.twitter.com/1/account/verify_credentials.json'
 
 
-def get_connection():
-    return httplib.HTTPSConnection(TWITTER_URL)
-
-
 def oauth_response(req):
-    connection = get_connection()
-    connection.set_debuglevel(12)
-    if req.get_normalized_http_method() == 'POST':
-        connection.request('POST', req.get_normalized_http_url(),
-            req.to_postdata())
-    else:
-        connection.request('GET', req.to_url())
-    response = connection.getresponse().read()
-    connection.close()
-    return response
+    response = urlopen(Request(req.http_url, headers=req.to_header()))
+    return response.read()
 
 
 class TwitterOAuthClient(oauth.OAuthClient):
@@ -46,7 +34,6 @@ class TwitterOAuthClient(oauth.OAuthClient):
             http_url=self.request_token_url,
             callback=callback
         )
-        oauth_request.http_method = 'POST'
         oauth_request.sign_request(self.signature_method, self.consumer, None)
         return oauth.OAuthToken.from_string(oauth_response(oauth_request))
 
@@ -100,8 +87,8 @@ def run_example():
 
     # setup
     print '** OAuth Python Library Example **'
-    consumer_key = raw_input('Twitter Consumer Key:')
-    consumer_secret = raw_input('Twitter Consumer Secret:')
+    consumer_key = raw_input('Twitter Consumer Key:').strip()
+    consumer_secret = raw_input('Twitter Consumer Secret:').strip()
     callback = 'http://example.com/newaccounts/login/done/'
 
     client = TwitterOAuthClient(consumer_key, consumer_secret)
