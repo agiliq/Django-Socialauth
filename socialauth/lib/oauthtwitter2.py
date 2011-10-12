@@ -8,7 +8,7 @@ from django.utils import simplejson as json
 
 TWITTER_URL = 'twitter.com'
 REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
-ACCESS_TOKEN_URL = 'https//api.twitter.com/oauth/access_token'
+ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
 TWITTER_CREDENTIALS_URL = 'https://api.twitter.com/1/account/verify_credentials.json'
 
