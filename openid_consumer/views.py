@@ -66,7 +66,7 @@ def begin(request, redirect_to=None, on_failure=None, user_url=None,
         get_full_url(request).split('?')[0] + 'complete/'
     )
     # In case they were lazy...
-    if (not
+    if not (
             redirect_to.startswith('http://')
         or
             redirect_to.startswith('https://')):
