@@ -21,6 +21,8 @@ urlpatterns = patterns('socialauth.views',
     url(r'^openid/complete/$', complete, name='socialauth_openid_complete'),
     url(r'^openid/signout/$', signout, name='openid_signout'),
     url(r'^openid/done/$', 'openid_done', name='openid_openid_done'),
+    url(r'^github_login/$', 'github_login', name='github_login'),
+    url(r'github_login/done/$', 'github_login_done', name='github_login_done'),
 )
 
 #Other views.

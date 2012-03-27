@@ -18,6 +18,7 @@ from openid_consumer.views import begin
 from socialauth.lib import oauthtwitter2 as oauthtwitter
 
 from socialauth.lib.linkedin import *
+from socialauth.lib.github import GithubClient
 
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
@@ -32,6 +33,7 @@ TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
 FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
 FACEBOOK_API_KEY = getattr(settings, 'FACEBOOK_API_KEY', '')
 FACEBOOK_SECRET_KEY = getattr(settings, 'FACEBOOK_SECRET_KEY', '')
+
 
 
 def del_dict_key(src_dict, key):
@@ -308,3 +310,21 @@ def social_logout(request):
     response.delete_cookie("fbs_" + FACEBOOK_APP_ID)
 
     return response
+
+def github_login(request):
+    github_client = GithubClient()
+    authorize_url = github_client.get_authorize_url()  
+    return HttpResponseRedirect(authorize_url)
+
+def github_login_done(request):
+    try:
+        code = request.GET['code']
+    except:
+        """Either github did not respond properly
+        or someone is playing with this url"""
+        print "exception ocurred"
+        return HttpResponseRedirect(LOGIN_URL)
+    github_client = GithubClient()
+    access_token = github_client.get_access_token(code)
+    print "access token :", access_token
+    return HttpResponseRedirect(LOGIN_URL) 
