@@ -326,5 +326,12 @@ def github_login_done(request):
         return HttpResponseRedirect(LOGIN_URL)
     github_client = GithubClient()
     access_token = github_client.get_access_token(code)
-    print "access token :", access_token
+    try:
+        user = authenticate(github_access_token=access_token)
+    except:
+        user = None
+    if user:
+        login(request, user)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+    return HttpResponseRedirect(LOGIN_URL)
     return HttpResponseRedirect(LOGIN_URL) 
