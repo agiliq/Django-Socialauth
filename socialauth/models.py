@@ -98,3 +98,10 @@ class GithubUserProfile(models.Model):
 
     def __unicode__(self):
         return "%s's profile" % self.user
+
+class FoursquareUserProfile(models.Model):
+    user = models.ForeignKey(User)
+    access_token = models.CharField(max_length=255, blank=True, null=True, editable=False)
+
+    def __unicode__(self):
+        return "%s's profile" % self.user
