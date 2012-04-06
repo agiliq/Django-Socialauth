@@ -19,6 +19,7 @@ from socialauth.lib import oauthtwitter2 as oauthtwitter
 
 from socialauth.lib.linkedin import *
 from socialauth.lib.github import GithubClient
+from socialauth.lib import foursquare
 
 LINKEDIN_CONSUMER_KEY = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
 LINKEDIN_CONSUMER_SECRET = getattr(settings, 'LINKEDIN_CONSUMER_SECRET', '')
@@ -329,6 +330,31 @@ def github_login_done(request):
         user = authenticate(github_access_token=access_token)
     except:
         user = None
+    if user:
+        login(request, user)
+        return HttpResponseRedirect(LOGIN_REDIRECT_URL)
+    return HttpResponseRedirect(LOGIN_URL) 
+
+def foursquare_login(request):
+    foursquare_client = foursquare.FourSquareClient()
+    return HttpResponseRedirect(foursquare_client.get_authentication_url())
+
+def foursquare_login_done(request):
+    try:
+        code = request.GET.get('code')
+    except:
+        """Some error ocurred.
+        Rediect to login page"""
+        return HttpResponseRedirect(LOGIN_URL)
+    request.session['foursquare_code'] = code
+    foursquare_client = foursquare.FourSquareClient()
+    access_token_response = foursquare_client.get_access_token(request.session['foursquare_code'])
+    import json
+    access_token = json.loads(access_token_response)['access_token'] 
+    try:
+        user = authenticate(foursquare_access_token=access_token)
+    except:
+        user=None
     if user:
         login(request, user)
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)

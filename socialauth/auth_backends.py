@@ -7,7 +7,7 @@ import facebook
 import urllib
 from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, \
-TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta, GithubUserProfile
+TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta, GithubUserProfile, FoursquareUserProfile
 from socialauth.lib.linkedin import *
 
 import random
@@ -343,6 +343,27 @@ class GithubBackend:
             github_user.save()
             AuthMeta(user=user, provider='Github').save() 
             return github_user.user
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
+            return None
+
+class FoursquareBackend:
+    def authenticate(self, foursquare_access_token):
+        try:
+            foursquare_profile = FoursquareUserProfile.objects.get(access_token=foursquare_access_token)
+            return foursquare_profile.user 
+        except FoursquareUserProfile.DoesNotExist:
+            foursquare_user_count = FoursquareUserProfile.objects.all().count()
+            username = "FoursquareUser:" + str(foursquare_user_count+1)
+            user = User(username=username)
+            user.save()
+            foursquare_user = FoursquareUserProfile(user=user, access_token=foursquare_access_token)
+            foursquare_user.save()
+            AuthMeta(user=user, provider='Foursquare').save()
+            return foursquare_user.user 
 
     def get_user(self, user_id):
         try:
