@@ -335,8 +335,8 @@ class GithubBackend:
             github_user = GithubUserProfile.objects.get(access_token=github_access_token)
             return github_user.user
         except GithubUserProfile.DoesNotExist:
-            """username for User can't be more than 30 characters long"""
-            username = "Github_" + str(github_access_token)[:15]
+            github_user_count = GithubUserProfile.objects.all().count()
+            username = "GithubUser:" + str(github_user_count+1)
             user = User(username=username)
             user.save()
             github_user = GithubUserProfile(user=user, access_token=github_access_token)
