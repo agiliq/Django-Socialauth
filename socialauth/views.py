@@ -322,7 +322,6 @@ def github_login_done(request):
     except:
         """Either github did not respond properly
         or someone is playing with this url"""
-        print "exception ocurred"
         return HttpResponseRedirect(LOGIN_URL)
     github_client = GithubClient()
     access_token = github_client.get_access_token(code)
@@ -333,5 +332,4 @@ def github_login_done(request):
     if user:
         login(request, user)
         return HttpResponseRedirect(LOGIN_REDIRECT_URL)
-    return HttpResponseRedirect(LOGIN_URL)
     return HttpResponseRedirect(LOGIN_URL) 
