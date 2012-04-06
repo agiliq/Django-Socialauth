@@ -32,6 +32,9 @@ FACEBOOK_SECRET_KEY = ''
 LINKEDIN_CONSUMER_KEY = ''
 LINKEDIN_CONSUMER_SECRET = ''
 
+GITHUB_CLIENT_ID = ''
+GITHUB_CLIENT_SECRET = ''
+
 ## if any of this information is desired for your app
 FACEBOOK_EXTENDED_PERMISSIONS = (
     #'publish_stream',
@@ -92,4 +95,5 @@ AUTHENTICATION_BACKENDS = (
     'socialauth.auth_backends.TwitterBackend',
     'socialauth.auth_backends.FacebookBackend',
     'socialauth.auth_backends.LinkedInBackend',
+    'socialauth.auth_backends.GithubBackend',
 )
