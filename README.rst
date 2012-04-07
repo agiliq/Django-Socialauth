@@ -17,6 +17,7 @@ In particular it allows logging in via
 #. Yahoo(Essentially openid)
 #. OpenId
 #. Github
+#. Foursquare
 
 Libs you need to install
 See requirements.txt
@@ -31,6 +32,7 @@ The API Keys are available from
 * https://www.google.com/accounts/ManageDomains
 * http://twitter.com/oauth_clients 
 * https://github.com/settings/applications/new
+* https://developer.foursquare.com/overview/auth.html
 
 How it works.
 --------------
@@ -46,6 +48,7 @@ How it works.
   authenticated.
 * **Github**:We use Github Oauth for authentication. As like Twitter, it works
   pretty well.
+* **Foursquare**:We use Oauth2.0 for authenticating via foursquare.
 
 References
 ----------
@@ -56,6 +59,7 @@ References
 #. http://apiwiki.twitter.com/OAuth-FAQ
 #. http://developers.facebook.com/connect.php
 #. http://develop.github.com/p/oauth.html
+#. https://developer.foursquare.com/overview/auth.html
 
 Limitations
 ------------
@@ -92,11 +96,12 @@ Urls
 * /facebook_login/done/ We dont have a start url here, as the starting tokens are
   set in a popup.
 * /github_login/ AND /github_login/done/
+* /foursquare_login/ AND /foursquare_login/done/
 
 Implementation
 ---------------
 
 #. Install required libraries.
 #. Get tokens and populate in localsettings.py
-#. Set the token callback urls correctly at Twitter, Facebook and Github.
+#. Set the token callback urls correctly at Twitter, Facebook, Github and Foursquare.
 #. Set the authentication_backends to the providers you are using.
