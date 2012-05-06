@@ -35,6 +35,10 @@ LINKEDIN_CONSUMER_SECRET = ''
 GITHUB_CLIENT_ID = ''
 GITHUB_CLIENT_SECRET = ''
 
+FOURSQUARE_CONSUMER_KEY = ''
+FOURSQUARE_CONSUMER_SECRET = ''
+FOURSQUARE_REGISTERED_REDIRECT_URI = ''
+
 ## if any of this information is desired for your app
 FACEBOOK_EXTENDED_PERMISSIONS = (
     #'publish_stream',
@@ -96,4 +100,5 @@ AUTHENTICATION_BACKENDS = (
     'socialauth.auth_backends.FacebookBackend',
     'socialauth.auth_backends.LinkedInBackend',
     'socialauth.auth_backends.GithubBackend',
+    'socialauth.auth_backends.FoursquareBackend',
 )
