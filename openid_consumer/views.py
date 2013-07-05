@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, get_host
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response as render
 from django.template import RequestContext
 from django.conf import settings
@@ -36,7 +36,7 @@ def get_url_host(request):
         protocol = 'https'
     else:
         protocol = 'http'
-    host = escape(get_host(request))
+    host = escape(request.get_host())
     return '%s://%s' % (protocol, host)
 
 def get_full_url(request):

@@ -1,10 +1,10 @@
 from django.conf.urls.defaults import *
 from openid_consumer.views import complete, signout
-from django.views.generic.simple import direct_to_template
+from django.views.generic.base import TemplateView
 
 #Login Views
 urlpatterns = patterns('socialauth.views',
-    url(r'^facebook_login/xd_receiver.htm$', direct_to_template, {'template':'socialauth/xd_receiver.htm'}, name='socialauth_xd_receiver'),
+    url(r'^facebook_login/xd_receiver.htm$', TemplateView.as_view(template_name='socialauth/xd_receiver.htm'), name='socialauth_xd_receiver'),
     url(r'^facebook_login/$', 'facebook_login', name='socialauth_facebook_login'),
     url(r'^facebook_login/done/$', 'facebook_login_done', name='socialauth_facebook_login_done'),
     url(r'^login/$', 'login_page', name='socialauth_login_page'),
@@ -25,9 +25,9 @@ urlpatterns = patterns('socialauth.views',
 
 #Other views.
 urlpatterns += patterns('socialauth.views',
-    url(r'^$', 'login_page', name='socialauth_index'),                        
-    url(r'^done/$', 'signin_complete', name='socialauth_signin_complete'),                    
-    url(r'^edit/profile/$', 'editprofile',  name='socialauth_editprofile'),                    
+    url(r'^$', 'login_page', name='socialauth_index'),
+    url(r'^done/$', 'signin_complete', name='socialauth_signin_complete'),
+    url(r'^edit/profile/$', 'editprofile',  name='socialauth_editprofile'),
     url(r'^logout/$', 'social_logout',  name='socialauth_social_logout'),
-) 
+)
 
