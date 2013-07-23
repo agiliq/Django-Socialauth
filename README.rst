@@ -1,3 +1,12 @@
+WARNING: This app is not maintained anymore
+-------------------------------------------------
+This repo is here for archive purposes, but unmaintained. There are much better social auth libraries.
+
+* https://github.com/omab/django-social-auth/ 
+* https://github.com/pennersr/django-allauth
+
+
+
 What it does.
 --------------
 
