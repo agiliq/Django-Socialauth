@@ -25,6 +25,8 @@ In particular it allows logging in via
 #. Facebook
 #. Yahoo(Essentially openid)
 #. OpenId
+#. Github
+#. Foursquare
 
 Libs you need to install
 See requirements.txt
@@ -38,6 +40,8 @@ The API Keys are available from
 * https://developer.yahoo.com/dashboard/createKey.html
 * https://www.google.com/accounts/ManageDomains
 * http://twitter.com/oauth_clients 
+* https://github.com/settings/applications/new
+* https://developer.foursquare.com/overview/auth.html
 
 How it works.
 --------------
@@ -51,6 +55,9 @@ How it works.
   used for authentication. (It is an autorisation framework, not an authentication one),
   In practice it works pretty well. Once you have an access_token, and a name, essentially
   authenticated.
+* **Github**:We use Github Oauth for authentication. As like Twitter, it works
+  pretty well.
+* **Foursquare**:We use Oauth2.0 for authenticating via foursquare.
 
 References
 ----------
@@ -60,11 +67,13 @@ References
 #. http://code.google.com/apis/accounts/docs/OpenID.html
 #. http://apiwiki.twitter.com/OAuth-FAQ
 #. http://developers.facebook.com/connect.php
+#. http://develop.github.com/p/oauth.html
+#. https://developer.foursquare.com/overview/auth.html
 
 Limitations
 ------------
 
-As with all APIs, we are limited by the amout of data which the API provider
+As with all APIs, we are limited by the amount of data which the API provider
 provides us. For example, both Yahoo and Google provide extremely limited data
 about the autheticated subscriber. Twitter and Facebook provide a lot of details,
 but not the email. Different Openid providers are free to provide [different
@@ -95,11 +104,13 @@ Urls
 * /twitter_login/ AND /twitter_login/done/
 * /facebook_login/done/ We dont have a start url here, as the starting tokens are
   set in a popup.
+* /github_login/ AND /github_login/done/
+* /foursquare_login/ AND /foursquare_login/done/
 
 Implementation
 ---------------
 
 #. Install required libraries.
 #. Get tokens and populate in localsettings.py
-#. Set the token callback urls correctly at Twitter and Facebook.
+#. Set the token callback urls correctly at Twitter, Facebook, Github and Foursquare.
 #. Set the authentication_backends to the providers you are using.

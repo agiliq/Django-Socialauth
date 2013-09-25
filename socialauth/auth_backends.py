@@ -7,10 +7,11 @@ import facebook
 import urllib
 from socialauth.lib import oauthtwitter2 as oauthtwitter
 from socialauth.models import OpenidProfile as UserAssociation, \
-TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta
+TwitterUserProfile, FacebookUserProfile, LinkedInUserProfile, AuthMeta, GithubUserProfile, FoursquareUserProfile
 from socialauth.lib.linkedin import *
 
 import random
+from cgi import parse_qs
 
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
@@ -320,6 +321,50 @@ class FacebookBackend:
             return user
 
     
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
+            return None
+
+class GithubBackend:
+    def authenticate(self, github_access_token, user=None):
+        response_qs = parse_qs(github_access_token)
+        github_access_token = response_qs['access_token'][0]
+        try:
+            github_user = GithubUserProfile.objects.get(access_token=github_access_token)
+            return github_user.user
+        except GithubUserProfile.DoesNotExist:
+            github_user_count = GithubUserProfile.objects.all().count()
+            username = "GithubUser:" + str(github_user_count+1)
+            user = User(username=username)
+            user.save()
+            github_user = GithubUserProfile(user=user, access_token=github_access_token)
+            github_user.save()
+            AuthMeta(user=user, provider='Github').save() 
+            return github_user.user
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
+            return None
+
+class FoursquareBackend:
+    def authenticate(self, foursquare_access_token):
+        try:
+            foursquare_profile = FoursquareUserProfile.objects.get(access_token=foursquare_access_token)
+            return foursquare_profile.user 
+        except FoursquareUserProfile.DoesNotExist:
+            foursquare_user_count = FoursquareUserProfile.objects.all().count()
+            username = "FoursquareUser:" + str(foursquare_user_count+1)
+            user = User(username=username)
+            user.save()
+            foursquare_user = FoursquareUserProfile(user=user, access_token=foursquare_access_token)
+            foursquare_user.save()
+            AuthMeta(user=user, provider='Foursquare').save()
+            return foursquare_user.user 
+
     def get_user(self, user_id):
         try:
             return User.objects.get(pk=user_id)
